@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "windows": {
+    "options": {
+      "shell": {
+        "executable": "powershell",
+        "args": [".venv\\Scripts\\activate.ps1", ";"]
+      }
+    }
+  },
+  "linux": {
+    "options": {
+      "shell": {
+        "executable": "bash",
+        "args": [ "--init-file", ".venv/bin/activate", "-ci" ]
+      }
+    },
+  },
+  "tasks": [
+    {
+      "label": "RobotPy Project: Init/Update Robot-Lib",
+      "type": "shell",
+      "command": "python ./scripts/update.py", 
+      "problemMatcher": [],
+    },
+    {
+      "label": "RobotPy Project: Install RobotPy",
+      "type": "shell",
+      "command": "python ./scripts/install.py", 
+      "problemMatcher": []
+    },
+    {
+      "label": "RobotPy Project: Sync RobotPy",
+      "type": "shell",
+      "command": "python ./scripts/sync.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "RobotPy Project: Test Robot Code",
+      "type": "shell",
+      "command": "python ./scripts/test.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "RobotPy Project: Simulate Robot Code",
+      "type": "shell",
+      "command": "python ./scripts/simulate.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "RobotPy Project: Deploy Robot Code",
+      "type": "shell",
+      "command": "python ./scripts/deploy.py",
+      "problemMatcher": []
+    }
+  ]
+}
