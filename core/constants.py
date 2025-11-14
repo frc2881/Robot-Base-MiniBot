@@ -37,7 +37,7 @@ class Subsystems:
     kTrackWidth: units.meters = units.inchesToMeters(9.125)
     kWheelBase: units.meters = units.inchesToMeters(9.125)
 
-    kTranslationSpeedMax: units.meters_per_second = 4.46
+    kTranslationSpeedMax: units.meters_per_second = 6.32
     kRotationSpeedMax: units.degrees_per_second = 720.0
 
     kInputLimitDemo: units.percent = 0.5
@@ -46,11 +46,11 @@ class Subsystems:
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
       wheelBevelGearTeeth = 45,
-      wheelSpurGearTeeth = 22,
+      wheelSpurGearTeeth = 20,
       wheelBevelPinionTeeth = 15,
-      drivingMotorPinionTeeth = 13,
-      drivingMotorFreeSpeed = 5676,
-      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorPinionTeeth = 14,
+      drivingMotorFreeSpeed = 6784,
+      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkFlex,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
@@ -107,13 +107,13 @@ class Sensors:
     )
 
     kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
-      PoseSensorConfig(
-        "Front",
-        Transform3d(
-          Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)),
-          Rotation3d(units.degreesToRadians(0), units.degreesToRadians(0), units.degreesToRadians(0))
-        ), _poseSensorConstants
-      ),
+      # PoseSensorConfig(
+      #   "Front",
+      #   Transform3d(
+      #     Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)),
+      #     Rotation3d(units.degreesToRadians(0), units.degreesToRadians(0), units.degreesToRadians(0))
+      #   ), _poseSensorConstants
+      # ),
     )
 
   class Camera:
