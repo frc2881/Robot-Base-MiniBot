@@ -41,7 +41,7 @@ class Subsystems:
     kRotationSpeedMax: units.degrees_per_second = 720.0
 
     kInputLimitDemo: units.percent = 0.5
-    kInputRateLimitDemo: units.percent = 0.33
+    kInputRateLimitDemo: units.percent = 0.9
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
