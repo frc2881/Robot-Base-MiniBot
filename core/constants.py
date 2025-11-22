@@ -41,7 +41,7 @@ class Subsystems:
     kRotationSpeedMax: units.degrees_per_second = 720.0
 
     kInputLimitDemo: units.percent = 0.5
-    kInputRateLimitDemo: units.percent = 0.9
+    kInputRateLimitDemo: units.percent = 0.5
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
@@ -76,11 +76,11 @@ class Subsystems:
     )
 
     kTargetAlignmentConstants = TargetAlignmentConstants(
-      translationPID = PID(3.0, 0, 0),
+      translationPID = PID(5.0, 0, 0),
       translationMaxVelocity = 1.4,
       translationMaxAcceleration = 1.0,
       translationTolerance = Tolerance(0.05, 0.1),
-      rotationPID = PID(3.0, 0, 0),
+      rotationPID = PID(5.0, 0, 0),
       rotationMaxVelocity = 360.0,
       rotationMaxAcceleration = 180.0,
       rotationTolerance = Tolerance(0.5, 1.0),
@@ -110,8 +110,8 @@ class Sensors:
       PoseSensorConfig(
         "Front",
         Transform3d(
-          Translation3d(units.inchesToMeters(6.0), units.inchesToMeters(-1.75), units.inchesToMeters(10.0)),
-          Rotation3d(units.degreesToRadians(0), units.degreesToRadians(15.0), units.degreesToRadians(0))
+          Translation3d(units.inchesToMeters(6.0), units.inchesToMeters(-1.875), units.inchesToMeters(10.0)),
+          Rotation3d(units.degreesToRadians(0), units.degreesToRadians(21.0), units.degreesToRadians(0))
         ), _poseSensorConstants
       ),
     )
@@ -164,12 +164,12 @@ class Game:
       kTargetAlignmentTransforms: dict[TargetType, dict[TargetAlignmentLocation, Transform3d]] = {
         TargetType.Reef: {
           TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(27.0), 0, 0, Rotation3d()),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(6.0), units.inchesToMeters(-8.0), 0, Rotation3d(Rotation2d.fromDegrees(-2.0))),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(6.0), units.inchesToMeters(8.0), 0, Rotation3d(Rotation2d.fromDegrees(-2.0))) 
+          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(3.0), units.inchesToMeters(-8.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
+          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(3.0), units.inchesToMeters(8.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))) 
         },
         TargetType.CoralStation: {
-          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(-2.0))),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(-24.0), 0, Rotation3d(Rotation2d.fromDegrees(-2.0))),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(24.0), 0, Rotation3d(Rotation2d.fromDegrees(-2.0)))
+          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
+          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(-24.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
+          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(24.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0)))
         }
       }                                                                                                                                           
