@@ -25,7 +25,6 @@ class RobotCore:
   def _initSensors(self) -> None:
     self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
-    SmartDashboard.putString("Robot/Sensors/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
 
   def _initSubsystems(self) -> None:
     self.drive = Drive(self.gyro.getHeading)
@@ -36,21 +35,22 @@ class RobotCore:
       self.drive.getModulePositions, 
       self.poseSensors
     )
+    SmartDashboard.putString("Robot/Cameras/Driver", constants.Cameras.kDriverStream)
 
   def _initControllers(self) -> None:
     self.driver = Xbox(constants.Controllers.kDriverControllerPort, constants.Controllers.kInputDeadband)
     self.operator = Xbox(constants.Controllers.kOperatorControllerPort, constants.Controllers.kInputDeadband)
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
-
+    
   def _initCommands(self) -> None:
     self.game = Game(self)
     self.auto = Auto(self)
 
   def _initTriggers(self) -> None:
-    self._setupDriver()
-    self._setupOperator()
+    self._setupDriverController()
+    self._setupOperatorController()
 
-  def _setupDriver(self) -> None:
+  def _setupDriverController(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
     # self.driver.rightStick().whileTrue(cmd.none())
     self.driver.leftStick().whileTrue(self.drive.lock())
@@ -69,7 +69,7 @@ class RobotCore:
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset()))
 
-  def _setupOperator(self) -> None:
+  def _setupOperatorController(self) -> None:
     pass
     # self.operator.leftTrigger().whileTrue(cmd.none())
     # self.operator.rightTrigger().whileTrue(cmd.none())
