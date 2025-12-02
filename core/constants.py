@@ -108,8 +108,8 @@ class Sensors:
 
     kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
-        cameraName = "Front",
-        cameraTransform = Transform3d(
+        name = "Front",
+        transform = Transform3d(
           Translation3d(x = units.inchesToMeters(5.886), y = units.inchesToMeters(-2.177), z = units.inchesToMeters(10.674)),
           Rotation3d(roll = units.degreesToRadians(-0.106), pitch = units.degreesToRadians(-10.387), yaw = units.degreesToRadians(1.167))
         ), 
