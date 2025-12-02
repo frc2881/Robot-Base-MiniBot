@@ -25,6 +25,7 @@ class RobotCore:
   def _initSensors(self) -> None:
     self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
+    SmartDashboard.putString("Robot/Sensors/Pose/Names", utils.toJson(tuple(c.name for c in constants.Sensors.Pose.kPoseSensorConfigs)))
 
   def _initSubsystems(self) -> None:
     self.drive = Drive(self.gyro.getHeading)
@@ -47,10 +48,10 @@ class RobotCore:
     self.auto = Auto(self)
 
   def _initTriggers(self) -> None:
-    self._setupDriverController()
-    self._setupOperatorController()
+    self._setupDriver()
+    self._setupOperator()
 
-  def _setupDriverController(self) -> None:
+  def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
     # self.driver.rightStick().whileTrue(cmd.none())
     self.driver.leftStick().whileTrue(self.drive.lock())
@@ -69,7 +70,7 @@ class RobotCore:
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset()))
 
-  def _setupOperatorController(self) -> None:
+  def _setupOperator(self) -> None:
     pass
     # self.operator.leftTrigger().whileTrue(cmd.none())
     # self.operator.rightTrigger().whileTrue(cmd.none())
