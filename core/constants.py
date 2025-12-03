@@ -1,6 +1,6 @@
 import wpilib
 from wpimath import units
-from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Translation2d, Rotation2d, Quaternion
+from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 from navx import AHRS
@@ -109,21 +109,11 @@ class Sensors:
     kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
-        transform = Transform3d(
-          Translation3d(x = units.inchesToMeters(5.886), y = units.inchesToMeters(-2.177), z = units.inchesToMeters(10.674)),
-          Rotation3d(roll = units.degreesToRadians(-0.106), pitch = units.degreesToRadians(-10.387), yaw = units.degreesToRadians(1.167))
-        ), 
+        transform = Transform3d(Translation3d(0.149506, -0.055318, 0.271137), Rotation3d(-0.001852, -0.181301, 0.020370)), 
         stream = "http://10.28.81.6:1182/?action=stream", 
         constants = _poseSensorConstants
       ),
     )
-
-    # # DEBUG: use for empirical calculation of robot to camera transform for each pose sensor configuration using fixed target measured from robot and targetPose averages from PhotonVision
-    # robotToCamera = utils.getRobotToCameraTransform(
-    #   targetToRobot = Transform3d(Translation3d(0.860, 0, -0.311), Rotation3d().fromDegrees(0, 0, -180.0)),
-    #   targetToCamera = Transform3d(Translation3d(.707, .041, -0.089), Rotation3d(Quaternion(-0.01, -0.09, 0.0, -0.99)))
-    # )
-    # logger.debug(robotToCamera)
 
 class Cameras:
   kDriverStream = "http://10.28.81.6:1182/?action=stream"
