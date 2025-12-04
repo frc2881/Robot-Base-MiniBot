@@ -67,8 +67,8 @@ class Subsystems:
 
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
-    PATH_PLANNER_ROBOT_CONFIG = _PATHPLANNER_ROBOT_CONFIG
-    PATH_PLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
+    PATHPLANNER_ROBOT_CONFIG = _PATHPLANNER_ROBOT_CONFIG
+    PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     DRIFT_CORRECTION_CONSTANTS = DriftCorrectionConstants(
       rotationPID = PID(0.01, 0, 0), 
