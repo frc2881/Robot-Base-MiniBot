@@ -28,8 +28,8 @@ class Auto:
       self._robot.localization.resetRobotPose,
       self._robot.drive.getChassisSpeeds, 
       self._robot.drive.setChassisSpeeds, 
-      constants.Subsystems.Drive.kPathPlannerController,
-      constants.Subsystems.Drive.kPathPlannerRobotConfig,
+      constants.Subsystems.Drive.PATH_PLANNER_CONTROLLER,
+      constants.Subsystems.Drive.PATH_PLANNER_ROBOT_CONFIG,
       lambda: utils.getAlliance() == Alliance.Red,
       self._robot.drive
     )
