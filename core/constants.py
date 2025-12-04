@@ -34,8 +34,8 @@ class Subsystems:
   class Drive:
     ROBOT_LENGTH: units.meters = units.inchesToMeters(19.5)
     ROBOT_WIDTH: units.meters = units.inchesToMeters(19.5)
-    TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
+    TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
 
     TRANSLATION_SPEED_MAX: units.meters_per_second = 4.46
     ROTATION_SPEED_MAX: units.degrees_per_second = 720.0
