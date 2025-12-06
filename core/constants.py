@@ -159,8 +159,8 @@ class Game:
       TARGET_ALIGNMENT_TRANSFORMS: dict[TargetType, dict[TargetAlignmentLocation, Transform3d]] = {
         TargetType.Reef: {
           TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(27.0), 0, 0, Rotation3d()),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(3.0), units.inchesToMeters(-8.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(3.0), units.inchesToMeters(8.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))) 
+          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(12.0), units.inchesToMeters(-6.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
+          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(12.0), units.inchesToMeters(6.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))) 
         },
         TargetType.CoralStation: {
           TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
