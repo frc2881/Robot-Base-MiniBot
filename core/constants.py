@@ -10,6 +10,7 @@ from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from lib import logger, utils
 from lib.classes import (
+  RobotType,
   Alliance, 
   PID, 
   Tolerance,
@@ -124,6 +125,10 @@ class Controllers:
   INPUT_DEADBAND: units.percent = 0.1
 
 class Game:
+  class Robot:
+    TYPE = RobotType.Practice
+    NAME: str = "MiniBot"
+
   class Commands:
     AUTO_TARGET_ALIGNMENT_TIMEOUT: units.seconds = 1.5
 
