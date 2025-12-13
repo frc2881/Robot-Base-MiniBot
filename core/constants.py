@@ -78,13 +78,13 @@ class Subsystems:
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
       translationPID = PID(5.0, 0, 0),
-      translationMaxVelocity = 1.4,
+      translationMaxVelocity = 2.0,
       translationMaxAcceleration = 1.0,
-      translationTolerance = Tolerance(0.05, 0.1),
+      translationTolerance = Tolerance(0.025, 0.05),
       rotationPID = PID(5.0, 0, 0),
-      rotationMaxVelocity = 360.0,
-      rotationMaxAcceleration = 180.0,
-      rotationTolerance = Tolerance(0.5, 1.0),
+      rotationMaxVelocity = 540.0,
+      rotationMaxAcceleration = 360.0,
+      rotationTolerance = Tolerance(0.2, 0.4),
       rotationHeadingModeOffset = 0,
       rotationTranslationModeOffset = 180.0
     )
@@ -110,7 +110,7 @@ class Sensors:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
-        transform = Transform3d(Translation3d(0.149506, -0.055318, 0.271137), Rotation3d(-0.001852, -0.181301, 0.020370)), 
+        transform = Transform3d(Translation3d(0.105985, -0.057490, 0.339597), Rotation3d(-0.005636, -0.158088, 0.020506)),
         stream = "http://10.28.81.6:1182/?action=stream", 
         constants = _poseSensorConstants
       ),
