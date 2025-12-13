@@ -98,7 +98,7 @@ class Services:
 class Sensors: 
   class Gyro:
     class NAVX2:
-      COM_TYPE = AHRS.NavXComType.kMXP_SPI
+      COM_TYPE = AHRS.NavXComType.kUSB1
   
   class Pose:
     _poseSensorConstants = PoseSensorConstants(
