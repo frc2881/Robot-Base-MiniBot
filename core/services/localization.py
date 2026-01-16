@@ -15,18 +15,18 @@ import core.constants as constants
 class Localization():
   def __init__(
       self,
-      getGyroRotation: Callable[[], Rotation2d],
+      getGyroHeading: Callable[[], units.degrees],
       getDriveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]],
       poseSensors: tuple[PoseSensor, ...]
     ) -> None:
     super().__init__()
-    self._getGyroRotation = getGyroRotation
+    self._getGyroHeading = getGyroHeading
     self._getDriveModulePositions = getDriveModulePositions
     self._poseSensors = poseSensors
 
     self._poseEstimator = SwerveDrive4PoseEstimator(
       constants.Subsystems.Drive.DRIVE_KINEMATICS,
-      self._getGyroRotation(),
+      Rotation2d.fromDegrees(self._getGyroHeading()),
       self._getDriveModulePositions(),
       Pose2d()
     )
@@ -48,7 +48,7 @@ class Localization():
     self._updateTelemetry()
 
   def _updateRobotPose(self) -> None:
-    self._poseEstimator.update(self._getGyroRotation(), self._getDriveModulePositions())
+    self._poseEstimator.update(Rotation2d.fromDegrees(self._getGyroHeading()), self._getDriveModulePositions())
     hasVisionTarget = False
     for poseSensor in self._poseSensors:
       estimatedRobotPose = poseSensor.getEstimatedRobotPose()

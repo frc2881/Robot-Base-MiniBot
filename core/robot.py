@@ -32,7 +32,7 @@ class RobotCore:
     
   def _initServices(self) -> None:
     self.localization = Localization(
-      self.gyro.getRotation, 
+      self.gyro.getHeading, 
       self.drive.getModulePositions, 
       self.poseSensors
     )
@@ -56,8 +56,8 @@ class RobotCore:
     self.driver.leftStick().whileTrue(self.drive.lock())
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Translation, TargetAlignmentLocation.Right))
-    self.driver.leftBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Translation, TargetAlignmentLocation.Left))
+    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Heading, TargetAlignmentLocation.Center))
+    self.driver.leftBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Heading, TargetAlignmentLocation.Center))
     # self.driver.povUp().whileTrue(cmd.none())
     # self.driver.povDown().whileTrue(cmd.none())
     # self.driver.povLeft().whileTrue(cmd.none())
