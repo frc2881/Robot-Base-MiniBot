@@ -5,7 +5,6 @@ from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 from navx import AHRS
 from rev import SparkLowLevel
-from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from lib import logger, utils
@@ -18,7 +17,6 @@ from lib.classes import (
   SwerveModuleLocation, 
   DriftCorrectionConstants, 
   TargetAlignmentConstants,
-  PoseSensorConstants,
   PoseSensorConfig
 )
 from core.classes import (
@@ -27,7 +25,7 @@ from core.classes import (
   TargetAlignmentLocation
 )
 
-_aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2025-reefscape-andymark-filtered.json')
+_aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2026-rebuilt-andymark.json')
 _pathPlannerRobotConfig = RobotConfig.fromGUISettings()
 
 class Subsystems:
@@ -95,6 +93,7 @@ class Services:
     VISION_MAX_TARGET_DISTANCE: units.meters = 4.0
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
     VISION_MAX_GROUND_PLANE_DELTA: units.meters = 0.25
+    VISION_ESTIMATE_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
 
 class Sensors: 
   class Gyro:
@@ -102,18 +101,12 @@ class Sensors:
       COM_TYPE = AHRS.NavXComType.kUSB1
   
   class Pose:
-    _poseSensorConstants = PoseSensorConstants(
-      aprilTagFieldLayout = _aprilTagFieldLayout,
-      poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-      fallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
-    )
-
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
         transform = Transform3d(Translation3d(0.105985, -0.057490, 0.339597), Rotation3d(-0.005636, -0.158088, 0.020506)),
         stream = "http://10.28.81.6:1182/?action=stream", 
-        constants = _poseSensorConstants
+        aprilTagFieldLayout = _aprilTagFieldLayout
       ),
     )
 

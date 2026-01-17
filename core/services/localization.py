@@ -1,12 +1,10 @@
 from typing import Callable
-import math
 from wpilib import SmartDashboard, Timer
 from wpimath import units
 from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
-from photonlibpy.photonPoseEstimator import PoseStrategy
 from lib import logger, utils
 from lib.sensors.pose import PoseSensor
 from core.classes import Target, TargetAlignmentLocation
@@ -30,6 +28,7 @@ class Localization():
       self._getDriveModulePositions(),
       Pose2d()
     )
+    self._poseEstimator.setVisionMeasurementStdDevs(constants.Services.Localization.VISION_ESTIMATE_STANDARD_DEVIATIONS)
 
     self._alliance = None
     self._robotPose = Pose2d()
@@ -53,24 +52,13 @@ class Localization():
     for poseSensor in self._poseSensors:
       estimatedRobotPose = poseSensor.getEstimatedRobotPose()
       if estimatedRobotPose is not None:
-        if self._isValidRobotPose(estimatedRobotPose.estimatedPose):
-          totalTargets = 0
-          totalDistance = 0
+        estimatedPose = estimatedRobotPose.estimatedPose.toPose2d()
+        if utils.isPoseInBounds(estimatedPose, constants.Game.Field.BOUNDS):
           for target in estimatedRobotPose.targetsUsed:
-            distance = target.getBestCameraToTarget().translation().norm()
-            if self._isValidTarget(distance, target.getPoseAmbiguity(), estimatedRobotPose.strategy):
-              totalTargets += 1
-              totalDistance += distance
-          if totalTargets > 0:
-            hasVisionTarget = True
-            avgDistance = totalDistance / totalTargets
-            stdDevTranslation = 0.02 * avgDistance * avgDistance if totalTargets > 1 else 0.5 * avgDistance / 4.0
-            stdDevRotation = 0.3 * avgDistance * avgDistance if totalTargets > 1 else 1.0
-            self._poseEstimator.addVisionMeasurement(
-              estimatedRobotPose.estimatedPose.toPose2d(), 
-              estimatedRobotPose.timestampSeconds,
-              (stdDevTranslation, stdDevTranslation, stdDevRotation)
-            )
+            if utils.isValueInRange(target.getPoseAmbiguity(), -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
+              hasVisionTarget = True
+          if hasVisionTarget:
+            self._poseEstimator.addVisionMeasurement(estimatedPose, estimatedRobotPose.timestampSeconds)
     self._robotPose = self._poseEstimator.getEstimatedPosition()
     if hasVisionTarget:
       self._hasValidVisionTarget = True
@@ -78,20 +66,6 @@ class Localization():
     else:
       if self._hasValidVisionTarget and self._validVisionTargetBufferTimer.hasElapsed(0.1):
         self._hasValidVisionTarget = False
-
-  def _isValidTarget(self, distance: units.meters, ambiguity: units.percent, strategy: PoseStrategy) -> bool:
-    return (
-      distance <= constants.Services.Localization.VISION_MAX_TARGET_DISTANCE and (
-        strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR or 
-        utils.isValueInRange(ambiguity, 0, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY)
-      )
-    )
-
-  def _isValidRobotPose(self, pose: Pose3d) -> bool:
-    return (
-      utils.isPoseInBounds(pose.toPose2d(), constants.Game.Field.BOUNDS) and 
-      math.fabs(pose.Z()) <= constants.Services.Localization.VISION_MAX_GROUND_PLANE_DELTA
-    )
 
   def getRobotPose(self) -> Pose2d:
     return self._robotPose
