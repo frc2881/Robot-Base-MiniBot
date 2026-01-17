@@ -35,7 +35,7 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
 
-    TRANSLATION_SPEED_MAX: units.meters_per_second = 4.46
+    TRANSLATION_SPEED_MAX: units.meters_per_second = 4.8
     ROTATION_SPEED_MAX: units.degrees_per_second = 720.0
 
     INPUT_LIMIT_DEMO: units.percent = 0.5
