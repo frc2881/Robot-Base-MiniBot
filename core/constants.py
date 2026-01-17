@@ -4,7 +4,7 @@ from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Translation
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 from navx import AHRS
-from rev import SparkLowLevel
+from rev import SparkLowLevel, AbsoluteEncoderConfig
 from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from lib import logger, utils
@@ -53,7 +53,8 @@ class Subsystems:
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
-      turningMotorPID = PID(1.0, 0, 0)
+      turningMotorPID = PID(1.0, 0, 0),
+      turningMotorAbsoluteEncoderConfig = AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder
     )
 
     SWERVE_MODULE_CONFIGS: tuple[SwerveModuleConfig, ...] = (
