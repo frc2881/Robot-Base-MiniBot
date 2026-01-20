@@ -43,8 +43,8 @@ class Subsystems:
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
-      drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEO],
       drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[SwerveModuleGearKit.Medium],
       drivingMotorCurrentLimit = 80,
