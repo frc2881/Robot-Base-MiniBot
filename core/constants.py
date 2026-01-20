@@ -12,6 +12,8 @@ from lib.classes import (
   RobotType,
   Alliance, 
   PID, 
+  MotorModel,
+  SwerveModuleGearKit,
   SwerveModuleConstants, 
   SwerveModuleConfig, 
   SwerveModuleLocation, 
@@ -24,32 +26,30 @@ from core.classes import (
   TargetType, 
   TargetAlignmentLocation
 )
+import lib.constants
 
 _aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2026-rebuilt-andymark.json')
 _pathPlannerRobotConfig = RobotConfig.fromGUISettings()
 
 class Subsystems:
   class Drive:
-    CHASSIS_LENGTH: units.meters = units.inchesToMeters(19.5)
-    CHASSIS_WIDTH: units.meters = units.inchesToMeters(19.5)
+    BUMPER_LENGTH: units.meters = units.inchesToMeters(19.5)
+    BUMPER_WIDTH: units.meters = units.inchesToMeters(19.5)
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
-
-    TRANSLATION_SPEED_MAX: units.meters_per_second = 4.8
+    
+    TRANSLATION_SPEED_MAX: units.meters_per_second = 4.46
     ROTATION_SPEED_MAX: units.degrees_per_second = 720.0
 
-    INPUT_LIMIT_DEMO: units.percent = 0.5
-    INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
+    _drivingMotorModel = MotorModel.NEO
+    _swerveModuleGearKit = SwerveModuleGearKit.Medium
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
-      wheelBevelGearTeeth = 45,
-      wheelSpurGearTeeth = 22,
-      wheelBevelPinionTeeth = 15,
-      drivingMotorPinionTeeth = 13,
-      drivingMotorFreeSpeed = 5676,
-      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
+      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[_drivingMotorModel],
+      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[_swerveModuleGearKit],
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
@@ -88,6 +88,9 @@ class Subsystems:
       rotationHeadingModeOffset = 0,
       rotationTranslationModeOffset = 180.0
     )
+
+    INPUT_LIMIT_DEMO: units.percent = 0.5
+    INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
 
 class Services:
   class Localization:
