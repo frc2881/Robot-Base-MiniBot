@@ -41,15 +41,12 @@ class Subsystems:
     TRANSLATION_SPEED_MAX: units.meters_per_second = 4.46
     ROTATION_SPEED_MAX: units.degrees_per_second = 720.0
 
-    _drivingMotorModel = MotorModel.NEO
-    _swerveModuleGearKit = SwerveModuleGearKit.Medium
-
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
-      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[_drivingMotorModel],
-      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[_swerveModuleGearKit],
+      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEO],
+      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[SwerveModuleGearKit.Medium],
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
