@@ -52,8 +52,8 @@ class RobotCore:
 
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
-    # self.driver.rightStick().whileTrue(cmd.none())
-    self.driver.leftStick().whileTrue(self.drive.lock())
+    self.driver.rightStick().whileTrue(self.game.lockRobotToTarget())
+    self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
     self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Heading, TargetAlignmentLocation.Center))

@@ -89,5 +89,5 @@ class Localization():
     return self._hasValidVisionTarget
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean("Robot/Localization/HasValidVisionTarget", self._hasValidVisionTarget)
     self._robotPosePublisher.set(self._robotPose)
+    SmartDashboard.putBoolean("Robot/Localization/HasValidVisionTarget", self._hasValidVisionTarget)
