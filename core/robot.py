@@ -9,7 +9,7 @@ from core.commands.auto import Auto
 from core.commands.game import Game
 from core.subsystems.drive import Drive
 from core.services.localization import Localization
-from core.classes import TargetAlignmentLocation
+from core.classes import Target
 import core.constants as constants
 
 class RobotCore:
@@ -52,12 +52,12 @@ class RobotCore:
 
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
-    self.driver.rightStick().whileTrue(self.game.lockRobotToTarget())
+    self.driver.rightStick().whileTrue(self.game.lockRobotToTarget(Target.Hub))
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Heading, TargetAlignmentLocation.Center))
-    self.driver.leftBumper().whileTrue(self.game.alignRobotToTarget(TargetAlignmentMode.Heading, TargetAlignmentLocation.Center))
+    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(Target.Hub, TargetAlignmentMode.Heading))
+    # self.driver.leftBumper().whileTrue(cmd.none())
     # self.driver.povUp().whileTrue(cmd.none())
     # self.driver.povDown().whileTrue(cmd.none())
     # self.driver.povLeft().whileTrue(cmd.none())

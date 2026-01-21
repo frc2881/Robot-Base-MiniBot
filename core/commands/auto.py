@@ -7,8 +7,8 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
 from lib import logger, utils
 from lib.classes import Alliance
-if TYPE_CHECKING: from core.robot import RobotCore
 import core.constants as constants
+if TYPE_CHECKING: from core.robot import RobotCore
 
 class AutoPath(Enum):
   Move_1 = auto()

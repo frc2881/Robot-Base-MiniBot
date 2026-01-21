@@ -1,6 +1,6 @@
 import wpilib
 from wpimath import units
-from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Translation2d, Rotation2d
+from wpimath.geometry import Pose3d, Transform3d, Translation3d, Rotation3d, Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 from navx import AHRS
@@ -21,11 +21,7 @@ from lib.classes import (
   RotationAlignmentConstants,
   PoseSensorConfig
 )
-from core.classes import (
-  Target, 
-  TargetType, 
-  TargetAlignmentLocation
-)
+from core.classes import Target
 import lib.constants
 
 _aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2026-rebuilt-andymark.json')
@@ -135,38 +131,15 @@ class Game:
     BOUNDS = (Translation2d(0, 0), Translation2d(LENGTH, WIDTH))
 
     class Targets:
-      TARGETS: dict[Alliance, dict[int, Target]] = {
+      TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Red: {
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(1).toPose2d()): Target(TargetType.CoralStation, _aprilTagFieldLayout.getTagPose(1)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(2).toPose2d()): Target(TargetType.CoralStation, _aprilTagFieldLayout.getTagPose(2)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(6).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(6)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(7).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(7)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(8).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(8)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(9).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(9)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(10).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(10)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(11).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(11))
+          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))).transformBy(
+            Transform3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0), Rotation3d(Rotation2d.fromDegrees(0)))
+          ),
         },
         Alliance.Blue: {
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(12).toPose2d()): Target(TargetType.CoralStation, _aprilTagFieldLayout.getTagPose(12)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(13).toPose2d()): Target(TargetType.CoralStation, _aprilTagFieldLayout.getTagPose(13)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(17).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(17)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(18).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(18)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(19).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(19)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(20).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(20)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(21).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(21)),
-          utils.getTargetHash(_aprilTagFieldLayout.getTagPose(22).toPose2d()): Target(TargetType.Reef, _aprilTagFieldLayout.getTagPose(22))
+          Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))).transformBy(
+            Transform3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0), Rotation3d(Rotation2d.fromDegrees(0)))
+          ),
         }
       }
-
-      TARGET_ALIGNMENT_TRANSFORMS: dict[TargetType, dict[TargetAlignmentLocation, Transform3d]] = {
-        TargetType.Reef: {
-          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(0.0), 0, 0, Rotation3d()),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(16.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(16.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))) 
-        },
-        TargetType.CoralStation: {
-          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0))),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(20.0), units.inchesToMeters(0.0), 0, Rotation3d(Rotation2d.fromDegrees(0.0)))
-        }
-      }                                                                                                                                           

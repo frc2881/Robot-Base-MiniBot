@@ -7,7 +7,7 @@ from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
 from lib import logger, utils
 from lib.sensors.pose import PoseSensor
-from core.classes import Target, TargetAlignmentLocation
+from core.classes import Target
 import core.constants as constants
 
 class Localization():
@@ -32,8 +32,7 @@ class Localization():
 
     self._alliance = None
     self._robotPose = Pose2d()
-    self._targets: dict[int, Target] = {}
-    self._targetPoses: list[Pose2d] = []
+    self._targets: dict[Target, Pose3d] = {}
     self._hasValidVisionTarget: bool = False
     self._validVisionTargetBufferTimer = Timer()
     
@@ -77,13 +76,10 @@ class Localization():
     if utils.getAlliance() != self._alliance:
       self._alliance = utils.getAlliance()
       self._targets = constants.Game.Field.Targets.TARGETS[self._alliance]
-      self._targetPoses = [t.pose.toPose2d() for t in self._targets.values()]
-
-  def getTargetPose(self, targetAlignmentLocation: TargetAlignmentLocation) -> Pose3d:
-    target = self._targets.get(utils.getTargetHash(self._robotPose.nearest(self._targetPoses)))
-    if target is not None:
-      return target.pose.transformBy(constants.Game.Field.Targets.TARGET_ALIGNMENT_TRANSFORMS[target.type][targetAlignmentLocation])
-    return Pose3d(self._robotPose)
+      
+  def getTargetPose(self, target: Target) -> Pose3d:
+    target = self._targets.get(target)
+    return target if target is not None else Pose3d(self._robotPose)
 
   def hasValidVisionTarget(self) -> bool:
     return self._hasValidVisionTarget
