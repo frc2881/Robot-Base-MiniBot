@@ -63,27 +63,27 @@ class Subsystems:
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
-      translationPID = PID(5.0, 0, 0),
-      translationMaxVelocity = 1.6,
-      translationMaxAcceleration = 0.8,
+      translationPID = PID(5.0, 0, 0.5),
+      translationMaxVelocity = 2.0,
+      translationMaxAcceleration = 1.0,
       translationPositionTolerance = 0.025,
       translationVelocityTolerance = 0.1,
-      rotationPID = PID(5.0, 0, 0),
+      rotationPID = PID(7.0, 0, 0.7),
       rotationMaxVelocity = 720.0,
-      rotationMaxAcceleration = 540.0,
-      rotationPositionTolerance = 0.25,
-      rotationVelocityTolerance = 45.0
+      rotationMaxAcceleration = 1440.0,
+      rotationPositionTolerance = 0.5,
+      rotationVelocityTolerance = 1.0
     )
 
     TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0), 
-      rotationPositionTolerance = 0.25,
+      rotationPID = PID(0.01, 0, 0.001), 
+      rotationPositionTolerance = 0.5,
       rotationAlignmentOffset = 0
     )
 
     DRIFT_CORRECTION_CONSTANTS = RotationAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0), 
-      rotationPositionTolerance = 0.25
+      rotationPID = PID(0.01, 0, 0.001), 
+      rotationPositionTolerance = 0.5
     )
 
     INPUT_LIMIT_DEMO: units.percent = 0.5
@@ -133,13 +133,9 @@ class Game:
     class Targets:
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Red: {
-          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))).transformBy(
-            Transform3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0), Rotation3d(Rotation2d.fromDegrees(0)))
-          ),
+          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
         },
         Alliance.Blue: {
-          Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))).transformBy(
-            Transform3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0), Rotation3d(Rotation2d.fromDegrees(0)))
-          ),
+          Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
         }
       }

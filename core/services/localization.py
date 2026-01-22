@@ -78,8 +78,8 @@ class Localization():
       self._targets = constants.Game.Field.Targets.TARGETS[self._alliance]
       
   def getTargetPose(self, target: Target) -> Pose3d:
-    target = self._targets.get(target)
-    return target if target is not None else Pose3d(self._robotPose)
+    targetPose = self._targets.get(target)
+    return targetPose if targetPose is not None else Pose3d(self._robotPose)
 
   def hasValidVisionTarget(self) -> bool:
     return self._hasValidVisionTarget

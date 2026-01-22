@@ -158,7 +158,7 @@ class Drive(Subsystem):
       m.setTargetState(swerveModuleStates[i])
 
     if self._targetAlignmentState != State.Running:
-      if chassisSpeeds.vx != 0 or chassisSpeeds.vy != 0:
+      if chassisSpeeds.vx != 0 or chassisSpeeds.vy != 0 or chassisSpeeds.omega != 0:
         self._targetAlignmentState = State.Stopped
 
   def _getModuleStates(self) -> tuple[SwerveModuleState, ...]:
@@ -180,9 +180,9 @@ class Drive(Subsystem):
       for i, m in enumerate(self._modules): 
         m.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45 if i in { 0, 3 } else -45)))
 
-  def lockToTarget(self, getRobotPose: Callable[[], Pose2d], targetPose: Pose3d) -> Command:
+  def lockToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return self.startRun(
-      lambda: self._initTargetLock(getRobotPose(), targetPose),
+      lambda: self._initTargetLock(getRobotPose(), getTargetPose()),
       lambda: self._runTargetLock(getRobotPose())
     ).finallyDo(
       lambda end: self._endTargetLock()
@@ -190,7 +190,7 @@ class Drive(Subsystem):
 
   def _initTargetLock(self, robotPose: Pose2d, targetPose: Pose3d) -> None:
     self._targetLockState = State.Running
-    self._targetLockController.reset(robotPose.rotation().degrees())
+    self._targetLockController.reset()
     self._targetLockController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, targetPose)))
 
   def _runTargetLock(self, robotPose: Pose2d) -> None:
@@ -203,10 +203,10 @@ class Drive(Subsystem):
   def isLockedToTarget(self) -> bool:
     return self._targetLockState == State.Running
 
-  def alignToTarget(self, getRobotPose: Callable[[], Pose2d], targetPose: Pose3d, targetAlignmentMode: TargetAlignmentMode) -> Command:
+  def alignToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d], targetAlignmentMode: TargetAlignmentMode) -> Command:
     return self.startRun(
-      lambda: self._initTargetAlignment(getRobotPose(), targetPose, targetAlignmentMode),
-      lambda: self._runTargetAlignment(getRobotPose(), targetPose, targetAlignmentMode)
+      lambda: self._initTargetAlignment(getRobotPose(), getTargetPose(), targetAlignmentMode),
+      lambda: self._runTargetAlignment(getRobotPose(), getTargetPose(), targetAlignmentMode)
     ).until(
       lambda: self._targetAlignmentState == State.Completed
     ).finallyDo(
