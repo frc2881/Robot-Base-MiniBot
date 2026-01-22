@@ -63,26 +63,26 @@ class Subsystems:
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
-      translationPID = PID(5.0, 0, 0.5),
+      translationPID = PID(5.0, 0, 0),
       translationMaxVelocity = 2.0,
       translationMaxAcceleration = 1.0,
       translationPositionTolerance = 0.025,
       translationVelocityTolerance = 0.1,
-      rotationPID = PID(7.0, 0, 0.7),
+      rotationPID = PID(5.0, 0, 0),
       rotationMaxVelocity = 720.0,
-      rotationMaxAcceleration = 1440.0,
+      rotationMaxAcceleration = 360.0,
       rotationPositionTolerance = 0.5,
       rotationVelocityTolerance = 1.0
     )
 
     TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0.001), 
+      rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5,
       rotationAlignmentOffset = 0
     )
 
     DRIFT_CORRECTION_CONSTANTS = RotationAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0.001), 
+      rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
 
@@ -92,7 +92,7 @@ class Subsystems:
 class Services:
   class Localization:
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
-    VISION_ESTIMATE_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
+    VISION_ESTIMATE_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.2, 0.2, units.degreesToRadians(12.0))
 
 class Sensors: 
   class Gyro:

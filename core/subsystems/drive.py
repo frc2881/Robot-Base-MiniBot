@@ -1,5 +1,5 @@
 from typing import Callable
-from commands2 import Subsystem, Command
+from commands2 import Subsystem, Command, cmd
 from wpilib import SmartDashboard, SendableChooser
 from wpimath import units
 from wpimath.controller import PIDController, ProfiledPIDController
@@ -181,7 +181,7 @@ class Drive(Subsystem):
         m.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45 if i in { 0, 3 } else -45)))
 
   def lockToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
-    return self.startRun(
+    return cmd.startRun(
       lambda: self._initTargetLock(getRobotPose(), getTargetPose()),
       lambda: self._runTargetLock(getRobotPose())
     ).finallyDo(
