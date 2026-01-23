@@ -183,7 +183,7 @@ class Drive(Subsystem):
   def lockToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return cmd.startRun(
       lambda: self._initTargetLock(getRobotPose(), getTargetPose()),
-      lambda: self._runTargetLock(getRobotPose())
+      lambda: self._runTargetLock(getRobotPose(), getTargetPose())
     ).finallyDo(
       lambda end: self._endTargetLock()
     ).withName("Drive:LockToTarget")
@@ -191,9 +191,9 @@ class Drive(Subsystem):
   def _initTargetLock(self, robotPose: Pose2d, targetPose: Pose3d) -> None:
     self._targetLockState = State.Running
     self._targetLockController.reset()
-    self._targetLockController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, targetPose)))
 
-  def _runTargetLock(self, robotPose: Pose2d) -> None:
+  def _runTargetLock(self, robotPose: Pose2d, targetPose: Pose3d) -> None:
+    self._targetLockController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, targetPose)))
     self._targetLockInputRotationOverride = self._targetLockController.calculate(robotPose.rotation().degrees()) if not self._targetLockController.atSetpoint() else 0
 
   def _endTargetLock(self) -> None:
