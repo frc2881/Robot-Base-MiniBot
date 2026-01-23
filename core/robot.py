@@ -1,7 +1,6 @@
 from commands2 import cmd
 from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
-from lib.classes import TargetAlignmentMode
 from lib.controllers.xbox import Xbox
 from lib.sensors.gyro_navx2 import Gyro_NAVX2
 from lib.sensors.pose import PoseSensor
@@ -56,7 +55,7 @@ class RobotCore:
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(Target.Hub, TargetAlignmentMode.Heading))
+    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(Target.TowerRight))
     # self.driver.leftBumper().whileTrue(cmd.none())
     # self.driver.povUp().whileTrue(cmd.none())
     # self.driver.povDown().whileTrue(cmd.none())

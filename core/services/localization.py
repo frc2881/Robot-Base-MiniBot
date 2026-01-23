@@ -47,7 +47,7 @@ class Localization():
 
   def _updateRobotPose(self) -> None:
     self._poseEstimator.update(Rotation2d.fromDegrees(self._getGyroHeading()), self._getDriveModulePositions())
-    hasVisionTarget = False
+    hasValidVisionTarget = False
     for poseSensor in self._poseSensors:
       estimatedRobotPose = poseSensor.getEstimatedRobotPose()
       if estimatedRobotPose is not None:
@@ -55,11 +55,14 @@ class Localization():
         if utils.isPoseInBounds(estimatedPose, constants.Game.Field.BOUNDS):
           for target in estimatedRobotPose.targetsUsed:
             if utils.isValueInRange(target.getPoseAmbiguity(), -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
-              hasVisionTarget = True
-          if hasVisionTarget:
-            self._poseEstimator.addVisionMeasurement(estimatedPose, estimatedRobotPose.timestampSeconds)
+              hasValidVisionTarget = True
+              hasValidEstimatedPose = True
+              if utils.isPoseInBounds(self._poseEstimator.getEstimatedPosition(), constants.Game.Field.BOUNDS):
+                hasValidEstimatedPose = estimatedPose.translation().distance(self._poseEstimator.getEstimatedPosition().translation()) <= constants.Services.Localization.VISION_MAX_ESTIMATED_POSE_DELTA
+              if hasValidEstimatedPose:
+                self._poseEstimator.addVisionMeasurement(estimatedPose, estimatedRobotPose.timestampSeconds)
     self._robotPose = self._poseEstimator.getEstimatedPosition()
-    if hasVisionTarget:
+    if hasValidVisionTarget:
       self._hasValidVisionTarget = True
       self._validVisionTargetBufferTimer.restart()
     else:

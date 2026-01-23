@@ -34,8 +34,8 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    TRANSLATION_SPEED_MAX: units.meters_per_second = 4.46
-    ROTATION_SPEED_MAX: units.degrees_per_second = 720.0
+    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 4.46
+    ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
@@ -57,6 +57,8 @@ class Subsystems:
       SwerveModuleConfig(SwerveModuleLocation.RearRight, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveModuleConstants)
     )
 
+    logger.debug(Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2))
+
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
     PATHPLANNER_ROBOT_CONFIG = _pathPlannerRobotConfig
@@ -77,8 +79,7 @@ class Subsystems:
 
     TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
       rotationPID = PID(0.01, 0, 0), 
-      rotationPositionTolerance = 0.5,
-      rotationAlignmentOffset = 0
+      rotationPositionTolerance = 0.5
     )
 
     DRIFT_CORRECTION_CONSTANTS = RotationAlignmentConstants(
@@ -91,8 +92,9 @@ class Subsystems:
 
 class Services:
   class Localization:
-    VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
     VISION_ESTIMATE_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.2, 0.2, units.degreesToRadians(12.0))
+    VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
+    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
 
 class Sensors: 
   class Gyro:
@@ -133,9 +135,11 @@ class Game:
     class Targets:
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Red: {
-          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(180.0))),
+          Target.TowerRight: Pose3d(15.161, 4.747, 0, Rotation3d(Rotation2d.fromDegrees(180.0)))
         },
         Alliance.Blue: {
           Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.TowerRight: Pose3d(1.386, 3.319, 0, Rotation3d(Rotation2d.fromDegrees(0)))
         }
       }

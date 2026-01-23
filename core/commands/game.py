@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from commands2 import Command, cmd
 from wpilib import RobotBase
 from lib import logger, utils
-from lib.classes import TargetAlignmentMode, ControllerRumbleMode, ControllerRumblePattern
+from lib.classes import ControllerRumbleMode, ControllerRumblePattern
 from core.classes import Target
 if TYPE_CHECKING: from core.robot import RobotCore
 
@@ -15,20 +15,18 @@ class Game:
 
   def lockRobotToTarget(self, target: Target) -> Command:
     return (
-      self._robot.drive.lockToTarget(
-        self._robot.localization.getRobotPose, 
-        lambda: self._robot.localization.getTargetPose(target))
+      self._robot.drive.lockToTarget(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
       .withName(f'Game:LockRobotToTarget:{ target.name }')
     )
+  
+  def isRobotLockedToTarget(self) -> bool:
+    return self._robot.drive.isLockedToTarget()
 
-  def alignRobotToTarget(self, target: Target, targetAlignmentMode: TargetAlignmentMode) -> Command:
+  def alignRobotToTarget(self, target: Target) -> Command:
     return (
-      self._robot.drive.alignToTarget(
-        self._robot.localization.getRobotPose, 
-        lambda: self._robot.localization.getTargetPose(target),
-        targetAlignmentMode)
+      self._robot.drive.alignToTarget(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
-      .withName(f'Game:AlignRobotToTarget:{ target.name }:{ targetAlignmentMode.name }')
+      .withName(f'Game:AlignRobotToTarget:{ target.name }')
     )
   
   def isRobotAlignedToTarget(self) -> bool:
