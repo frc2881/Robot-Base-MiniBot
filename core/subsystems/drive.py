@@ -96,12 +96,12 @@ class Drive(Subsystem):
 
   def drive(self, getTranslationXInput: Callable[[], units.percent], getTranslationYInput: Callable[[], units.percent], getRotationInput: Callable[[], units.percent]) -> Command:
     return self.run(
-      lambda: self._drive(getTranslationXInput(), getTranslationYInput(), getRotationInput())
+      lambda: self._runDrive(getTranslationXInput(), getTranslationYInput(), getRotationInput())
     ).onlyIf(
       lambda: self._swerveModulesLockPosition == Position.Unlocked
     ).withName("Drive:Drive")
 
-  def _drive(self, translationXInput: units.percent, translationYInput: units.percent, rotationInput: units.percent) -> None:
+  def _runDrive(self, translationXInput: units.percent, translationYInput: units.percent, rotationInput: units.percent) -> None:
     if self._targetLockState == State.Running:
       rotationInput = self._targetLockRotationInput
     else:

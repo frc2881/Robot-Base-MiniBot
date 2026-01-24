@@ -90,7 +90,8 @@ class Subsystems:
 
 class Services:
   class Localization:
-    VISION_ESTIMATE_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.2, 0.2, units.degreesToRadians(12.0))
+    VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.1, 0.1, units.degreesToRadians(15.0))
+    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(5.0))
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
     VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
 

@@ -6,6 +6,7 @@ from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
 from lib import logger, utils
+from lib.classes import RobotState, RobotMode
 from lib.sensors.pose import PoseSensor
 from core.classes import Target
 import core.constants as constants
@@ -28,7 +29,6 @@ class Localization():
       self._getDriveModulePositions(),
       Pose2d()
     )
-    self._poseEstimator.setVisionMeasurementStdDevs(constants.Services.Localization.VISION_ESTIMATE_STANDARD_DEVIATIONS)
 
     self._alliance = None
     self._robotPose = Pose2d()
@@ -53,14 +53,20 @@ class Localization():
       if estimatedRobotPose is not None:
         estimatedPose = estimatedRobotPose.estimatedPose.toPose2d()
         if utils.isPoseInBounds(estimatedPose, constants.Game.Field.BOUNDS):
-          for target in estimatedRobotPose.targetsUsed:
-            if utils.isValueInRange(target.getPoseAmbiguity(), -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
-              hasValidVisionTarget = True
-              # hasValidEstimatedPose = True
-              # if utils.isPoseInBounds(self._poseEstimator.getEstimatedPosition(), constants.Game.Field.BOUNDS):
-              #   hasValidEstimatedPose = estimatedPose.translation().distance(self._poseEstimator.getEstimatedPosition().translation()) <= constants.Services.Localization.VISION_MAX_ESTIMATED_POSE_DELTA
-              # if hasValidEstimatedPose:
-              self._poseEstimator.addVisionMeasurement(estimatedPose, estimatedRobotPose.timestampSeconds)
+          poseAmbiguity = estimatedRobotPose.targetsUsed[0].getPoseAmbiguity()
+          if utils.isValueInRange(poseAmbiguity, -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
+            hasValidVisionTarget = True
+            if (
+              utils.getRobotState() == RobotState.Disabled or 
+              utils.isValueInRange(estimatedPose.translation().distance(self._poseEstimator.getEstimatedPosition().translation()), 0, constants.Services.Localization.VISION_MAX_ESTIMATED_POSE_DELTA)
+            ):
+              self._poseEstimator.addVisionMeasurement(
+                estimatedPose, 
+                estimatedRobotPose.timestampSeconds,
+                constants.Services.Localization.VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS
+                if poseAmbiguity == -1 else
+                constants.Services.Localization.VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS
+              )     
     self._robotPose = self._poseEstimator.getEstimatedPosition()
     if hasValidVisionTarget:
       self._hasValidVisionTarget = True
