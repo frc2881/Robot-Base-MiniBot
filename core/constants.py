@@ -57,8 +57,6 @@ class Subsystems:
       SwerveModuleConfig(SwerveModuleLocation.RearRight, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveModuleConstants)
     )
 
-    logger.debug(Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2))
-
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
     PATHPLANNER_ROBOT_CONFIG = _pathPlannerRobotConfig
