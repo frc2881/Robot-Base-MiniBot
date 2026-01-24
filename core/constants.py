@@ -66,8 +66,8 @@ class Subsystems:
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
       translationPID = PID(5.0, 0, 0),
-      translationMaxVelocity = 2.0,
-      translationMaxAcceleration = 1.0,
+      translationMaxVelocity = 1.5,
+      translationMaxAcceleration = 0.75,
       translationPositionTolerance = 0.025,
       translationVelocityTolerance = 0.1,
       rotationPID = PID(5.0, 0, 0),
@@ -105,7 +105,7 @@ class Sensors:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
-        transform = Transform3d(Translation3d(0.105985, -0.057490, 0.339597), Rotation3d(-0.005636, -0.158088, 0.020506)),
+        transform = Transform3d(Translation3d(0.119910, -0.022446, 0.258378), Rotation3d(0.026289, -0.323087, -0.024547)),
         stream = "http://10.28.81.6:1182/?action=stream", 
         aprilTagFieldLayout = _aprilTagFieldLayout
       ),
