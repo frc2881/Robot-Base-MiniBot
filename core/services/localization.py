@@ -6,7 +6,7 @@ from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
 from lib import logger, utils
-from lib.classes import RobotState, RobotMode
+from lib.classes import RobotState
 from lib.sensors.pose import PoseSensor
 from core.classes import Target
 import core.constants as constants
