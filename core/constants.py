@@ -104,7 +104,7 @@ class Sensors:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
-        transform = Transform3d(Translation3d(0.119910, -0.022446, 0.258378), Rotation3d(0.026289, -0.323087, -0.024547)),
+        transform = Transform3d(Translation3d(0.107311, -0.050843, 0.264506), Rotation3d(0.001834, -0.569486, -0.027619)),
         stream = "http://10.28.81.6:1182/?action=stream", 
         aprilTagFieldLayout = _aprilTagFieldLayout
       ),
