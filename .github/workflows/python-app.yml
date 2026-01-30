@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python 3.x environment
       uses: actions/setup-python@v3
       with:
-        python-version: "3.13"
+        python-version: "3.14"
     - name: Update, install and sync robotpy and project dependencies
       run: |
         python -m pip install --upgrade pip
