@@ -25,7 +25,6 @@ from core.classes import Target
 import lib.constants
 
 _aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2026-rebuilt-andymark.json')
-_pathPlannerRobotConfig = RobotConfig.fromGUISettings()
 
 class Subsystems:
   class Drive:
@@ -59,7 +58,7 @@ class Subsystems:
 
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
-    PATHPLANNER_ROBOT_CONFIG = _pathPlannerRobotConfig
+    PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
@@ -90,10 +89,10 @@ class Subsystems:
 
 class Services:
   class Localization:
-    VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.1, 0.1, units.degreesToRadians(15.0))
-    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(5.0))
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
     VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
+    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(2.5))
+    VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
 
 class Sensors: 
   class Gyro:
@@ -134,11 +133,21 @@ class Game:
     class Targets:
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Red: {
-          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(180.0))),
-          Target.TowerRight: Pose3d(15.161, 4.747, 0, Rotation3d(Rotation2d.fromDegrees(180.0)))
+          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.CornerLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(90))),
+          Target.CornerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
+          Target.TowerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.TowerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.Outpost: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.Depot: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90)))
         },
         Alliance.Blue: {
           Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.TowerRight: Pose3d(1.386, 3.319, 0, Rotation3d(Rotation2d.fromDegrees(0)))
+          Target.CornerLeft: Pose3d(0.280, 7.790, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
+          Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(90))),
+          Target.TowerRight: Pose3d(1.385, 3.150, 0, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.TowerRight: Pose3d(1.385, 3.150, 0, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.Outpost: Pose3d(0.280, 0.650, 0, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.Depot: Pose3d(1.385, 5.125, 0, Rotation3d(Rotation2d.fromDegrees(90)))
         }
       }
