@@ -62,9 +62,9 @@ class RobotCore:
     self.driver.povLeft().whileTrue(self.game.alignRobotToTarget(Target.TowerLeft))
     self.driver.povRight().whileTrue(self.game.alignRobotToTarget(Target.TowerRight))
     # self.driver.a().whileTrue(cmd.none())
-    # self.driver.b().whileTrue(cmd.none())
+    self.driver.b().whileTrue(self.game.alignRobotToTarget(Target.TrenchRight))
     # self.driver.y().whileTrue(cmd.none())
-    # self.driver.x().whileTrue(cmd.none())
+    self.driver.x().whileTrue(self.game.alignRobotToTarget(Target.TrenchLeft))
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset()))
 

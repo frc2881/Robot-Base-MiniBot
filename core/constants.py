@@ -65,7 +65,7 @@ class Subsystems:
       translationPID = PID(2.0, 0, 0),
       translationMaxVelocity = 1.5,
       translationMaxAcceleration = 0.75,
-      translationPositionTolerance = 0.02,
+      translationPositionTolerance = 0.025,
       rotationPID = PID(2.0, 0, 0),
       rotationMaxVelocity = 720.0,
       rotationMaxAcceleration = 360.0,
@@ -88,7 +88,7 @@ class Subsystems:
 class Services:
   class Localization:
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
-    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
+    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 3.0
     VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(2.5))
     VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
 
@@ -136,6 +136,8 @@ class Game:
           Target.CornerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
           Target.TowerLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
           Target.TowerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.TrenchLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(90))),
+          Target.TrenchRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
           Target.Outpost: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
           Target.Depot: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90)))
         },
@@ -145,6 +147,8 @@ class Game:
           Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(45))),
           Target.TowerLeft: Pose3d(1.385, 4.350, 0, Rotation3d(Rotation2d.fromDegrees(0))),
           Target.TowerRight: Pose3d(1.385, 3.150, 0, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.TrenchLeft: Pose3d(3.664, 6.535, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
+          Target.TrenchRight: Pose3d(3.664, 1.600, 0, Rotation3d(Rotation2d.fromDegrees(90))),
           Target.Outpost: Pose3d(0.280, 0.650, 0, Rotation3d(Rotation2d.fromDegrees(0))),
           Target.Depot: Pose3d(0.350, 5.125, 0, Rotation3d(Rotation2d.fromDegrees(0)))
         }
