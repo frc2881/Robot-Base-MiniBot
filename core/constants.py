@@ -62,16 +62,14 @@ class Subsystems:
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
-      translationPID = PID(5.0, 0, 0),
+      translationPID = PID(2.0, 0, 0),
       translationMaxVelocity = 1.5,
       translationMaxAcceleration = 0.75,
-      translationPositionTolerance = 0.025,
-      translationVelocityTolerance = 0.1,
-      rotationPID = PID(5.0, 0, 0),
+      translationPositionTolerance = 0.02,
+      rotationPID = PID(2.0, 0, 0),
       rotationMaxVelocity = 720.0,
       rotationMaxAcceleration = 360.0,
-      rotationPositionTolerance = 0.5,
-      rotationVelocityTolerance = 1.0
+      rotationPositionTolerance = 0.5
     )
 
     TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
@@ -143,11 +141,11 @@ class Game:
         },
         Alliance.Blue: {
           Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.CornerLeft: Pose3d(0.280, 7.790, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
-          Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(90))),
+          Target.CornerLeft: Pose3d(0.280, 7.790, 0, Rotation3d(Rotation2d.fromDegrees(-45))),
+          Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(45))),
           Target.TowerLeft: Pose3d(1.385, 4.350, 0, Rotation3d(Rotation2d.fromDegrees(0))),
           Target.TowerRight: Pose3d(1.385, 3.150, 0, Rotation3d(Rotation2d.fromDegrees(0))),
           Target.Outpost: Pose3d(0.280, 0.650, 0, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.Depot: Pose3d(0.350, 5.125, 0, Rotation3d(Rotation2d.fromDegrees(90)))
+          Target.Depot: Pose3d(0.350, 5.125, 0, Rotation3d(Rotation2d.fromDegrees(0)))
         }
       }
