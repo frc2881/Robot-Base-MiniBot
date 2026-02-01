@@ -7,6 +7,7 @@ from lib.sensors.pose import PoseSensor
 from core.commands.auto import Auto
 from core.commands.game import Game
 from core.subsystems.drive import Drive
+from core.subsystems.turret import Turret
 from core.services.localization import Localization
 from core.classes import Target
 import core.constants as constants
@@ -28,6 +29,7 @@ class RobotCore:
 
   def _initSubsystems(self) -> None:
     self.drive = Drive(self.gyro.getHeading)
+    self.turret = Turret()
     
   def _initServices(self) -> None:
     self.localization = Localization(
@@ -55,16 +57,16 @@ class RobotCore:
     self.driver.rightStick().whileTrue(self.game.lockRobotToTarget(Target.Hub))
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    self.driver.leftBumper().whileTrue(self.game.alignRobotToTarget(Target.CornerLeft))
-    self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(Target.CornerRight))
-    # self.driver.povUp().whileTrue(cmd.none())
-    # self.driver.povDown().whileTrue(cmd.none())
-    self.driver.povLeft().whileTrue(self.game.alignRobotToTarget(Target.TowerLeft))
-    self.driver.povRight().whileTrue(self.game.alignRobotToTarget(Target.TowerRight))
+    # self.driver.leftBumper().whileTrue(self.game.alignRobotToTarget(Target.CornerLeft))
+    # self.driver.rightBumper().whileTrue(self.game.alignRobotToTarget(Target.CornerRight))
+    self.driver.povUp().whileTrue(self.turret.setPosition(0))
+    self.driver.povDown().whileTrue(self.turret.resetToHome())
+    self.driver.povLeft().whileTrue(self.turret.setPosition(145))
+    self.driver.povRight().whileTrue(self.turret.setPosition(-145))
     # self.driver.a().whileTrue(cmd.none())
-    self.driver.b().whileTrue(self.game.alignRobotToTarget(Target.TrenchRight))
+    # self.driver.b().whileTrue(self.game.alignRobotToTarget(Target.TrenchRight))
     # self.driver.y().whileTrue(cmd.none())
-    self.driver.x().whileTrue(self.game.alignRobotToTarget(Target.TrenchLeft))
+    # self.driver.x().whileTrue(self.game.alignRobotToTarget(Target.TrenchLeft))
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset()))
 

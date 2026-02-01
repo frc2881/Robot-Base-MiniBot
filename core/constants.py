@@ -9,6 +9,10 @@ from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from lib import logger, utils
 from lib.classes import (
+  FeedForwardGains,
+  Range,
+  RelativePositionControlModuleConfig,
+  RelativePositionControlModuleConstants,
   RobotType,
   Alliance, 
   PID, 
@@ -84,6 +88,26 @@ class Subsystems:
 
     INPUT_LIMIT_DEMO: units.percent = 0.5
     INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
+
+  class Turret:
+    TURRET_CONFIG = RelativePositionControlModuleConfig("Turret", 13, False, RelativePositionControlModuleConstants(
+      motorControllerType = SparkLowLevel.SparkModel.kSparkFlex,
+      motorType = SparkLowLevel.MotorType.kBrushless,
+      motorCurrentLimit = 80,
+      motorRelativeEncoderPositionConversionFactor = 360.0 / 21.0,
+      motorPID = PID(0.025, 0, 0.0025),
+      motorOutputRange = Range(-0.5, 0.5),
+      motorFeedForwardGains  = FeedForwardGains(0, 12.0/6780, 0 , 0),
+      motorMotionCruiseVelocity = 40000.0,
+      motorMotionMaxAcceleration = 80000.0,
+      motorMotionAllowedProfileError = 0.25,
+      motorSoftLimitForward = 170.0,
+      motorSoftLimitReverse = -160.0,
+      motorHomingSpeed = 0.1,
+      motorHomedPosition = -170
+    ))
+
+    INPUT_LIMIT: units.percent = 1.0
 
 class Services:
   class Localization:
