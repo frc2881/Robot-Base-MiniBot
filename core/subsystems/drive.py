@@ -218,7 +218,7 @@ class Drive(Subsystem):
 
   def _runTargetAlignment(self, robotPose: Pose2d) -> None:
     # TODO: try using controller tolerance and individual underlying PID controller atSetpoint / atGoal methods in place of direct (redundant) calculations
-    if utils.isPoseAlignedToTarget(
+    if not utils.isPoseAlignedToTarget(
       robotPose, 
       self._targetPose, 
       self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
