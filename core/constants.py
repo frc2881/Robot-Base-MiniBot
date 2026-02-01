@@ -95,7 +95,7 @@ class Services:
 class Sensors: 
   class Gyro:
     class NAVX2:
-      COM_TYPE = AHRS.NavXComType.kUSB1
+      COM_TYPE = AHRS.NavXComType.kMXP_SPI
   
   class Pose:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
