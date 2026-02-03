@@ -48,6 +48,11 @@ class Drive(Subsystem):
         TrapezoidProfileRadians.Constraints(self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationMaxVelocity, self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationMaxAcceleration)
       )
     )
+    self._targetAlignmentController.setTolerance(Pose2d(
+      self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
+      self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
+      Rotation2d.fromDegrees(self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationPositionTolerance))
+    )
     self._targetAlignmentController.getThetaController().enableContinuousInput(units.degreesToRadians(-180.0), units.degreesToRadians(180.0))
 
     self._targetPose: Pose3d | None = None
@@ -210,23 +215,13 @@ class Drive(Subsystem):
     ).withName("Drive:AlignToTarget")
   
   def _initTargetAlignment(self, targetPose: Pose3d) -> None:
-    self._targetAlignmentController.getXController().reset()
-    self._targetAlignmentController.getYController().reset()
-    self._targetAlignmentController.getThetaController().reset()
     self._targetPose = targetPose
     self._targetAlignmentState = State.Running
 
   def _runTargetAlignment(self, robotPose: Pose2d) -> None:
-    # TODO: try using controller tolerance and individual underlying PID controller atSetpoint / atGoal methods in place of direct (redundant) calculations
-    if not utils.isPoseAlignedToTarget(
-      robotPose, 
-      self._targetPose, 
-      self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
-      self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationPositionTolerance
-    ):
-      self._setModuleStates(self._targetAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()))
-      # TODO: try applying relative/percentage speed limiters to translational velocity (rotational velocity is already being constrained in controller setup)
-    else:
+    # TODO: try applying relative/percentage speed limiters to translational velocity (rotational velocity is already being constrained in controller setup)
+    self._setModuleStates(self._targetAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()))
+    if self._targetAlignmentController.atReference():
       self._targetAlignmentState = State.Completed
 
   def _endTargetAlignment(self) -> None:
