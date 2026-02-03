@@ -1,7 +1,7 @@
 from commands2 import cmd
 from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
-from lib.controllers.xbox import Xbox
+from lib.controllers.xbox import XboxController
 from lib.sensors.gyro_navx2 import Gyro_NAVX2
 from lib.sensors.pose import PoseSensor
 from core.commands.auto import Auto
@@ -37,8 +37,8 @@ class RobotCore:
     )
 
   def _initControllers(self) -> None:
-    self.driver = Xbox(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
-    self.operator = Xbox(constants.Controllers.OPERATOR_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
+    self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
+    self.operator = XboxController(constants.Controllers.OPERATOR_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
     
   def _initCommands(self) -> None:
@@ -66,7 +66,7 @@ class RobotCore:
     # self.driver.y().whileTrue(cmd.none())
     self.driver.x().whileTrue(self.game.alignRobotToTarget(Target.TrenchLeft))
     # self.driver.start().whileTrue(cmd.none())
-    self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset()))
+    self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset())) # TODO: update to use built-in debounce mod
 
   def _setupOperator(self) -> None:
     pass
