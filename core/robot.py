@@ -16,8 +16,8 @@ class RobotCore:
     self._initSensors()
     self._initSubsystems()
     self._initServices()
-    self._initControllers()
     self._initCommands()
+    self._initControllers()
     self._initTriggers()
     self._initTelemetry()
     utils.addRobotPeriodic(self._periodic)
@@ -36,15 +36,15 @@ class RobotCore:
       self.poseSensors
     )
 
+  def _initCommands(self) -> None:
+    self.game = Game(self)
+    self.auto = Auto(self)
+
   def _initControllers(self) -> None:
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
     self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     self.operator = XboxController(constants.Controllers.OPERATOR_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     
-  def _initCommands(self) -> None:
-    self.game = Game(self)
-    self.auto = Auto(self)
-
   def _initTriggers(self) -> None:
     self._setupDriver()
     self._setupOperator()
