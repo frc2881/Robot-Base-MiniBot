@@ -66,7 +66,7 @@ class RobotCore:
     # self.driver.y().whileTrue(cmd.none())
     self.driver.x().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchLeft))
     # self.driver.start().whileTrue(cmd.none())
-    self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset())) # TODO: update to use built-in debounce mod
+    self.driver.back().whileTrue(self.gyro.reset()).debounce(0.5)
 
   def _setupOperator(self) -> None:
     pass
