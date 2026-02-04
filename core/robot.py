@@ -16,8 +16,8 @@ class RobotCore:
     self._initSensors()
     self._initSubsystems()
     self._initServices()
-    self._initControllers()
     self._initCommands()
+    self._initControllers()
     self._initTriggers()
     self._initTelemetry()
     utils.addRobotPeriodic(self._periodic)
@@ -36,15 +36,15 @@ class RobotCore:
       self.poseSensors
     )
 
+  def _initCommands(self) -> None:
+    self.game = Game(self)
+    self.auto = Auto(self)
+
   def _initControllers(self) -> None:
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
     self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     self.operator = XboxController(constants.Controllers.OPERATOR_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     
-  def _initCommands(self) -> None:
-    self.game = Game(self)
-    self.auto = Auto(self)
-
   def _initTriggers(self) -> None:
     self._setupDriver()
     self._setupOperator()
@@ -66,7 +66,7 @@ class RobotCore:
     # self.driver.y().whileTrue(cmd.none())
     self.driver.x().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchLeft))
     # self.driver.start().whileTrue(cmd.none())
-    self.driver.back().whileTrue(cmd.waitSeconds(0.5).andThen(self.gyro.reset())) # TODO: update to use built-in debounce mod
+    self.driver.back().whileTrue(self.gyro.reset()).debounce(0.5)
 
   def _setupOperator(self) -> None:
     pass
