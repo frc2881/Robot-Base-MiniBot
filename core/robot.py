@@ -90,8 +90,8 @@ class RobotCore:
     SmartDashboard.putString("Game/Robot/Name", constants.Game.Robot.NAME)
     SmartDashboard.putNumber("Game/Field/Length", constants.Game.Field.LENGTH)
     SmartDashboard.putNumber("Game/Field/Width", constants.Game.Field.WIDTH)
-    SmartDashboard.putNumber("Robot/Drive/Bumper/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
-    SmartDashboard.putNumber("Robot/Drive/Bumper/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
+    SmartDashboard.putNumber("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
+    SmartDashboard.putNumber("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
     SmartDashboard.putString("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
     SmartDashboard.putStringArray("Robot/Sensors/Pose/Names", tuple(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
 
