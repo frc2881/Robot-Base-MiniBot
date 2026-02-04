@@ -9,10 +9,6 @@ from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from lib import logger, utils
 from lib.classes import (
-  FeedForwardGains,
-  Range,
-  RelativePositionControlModuleConfig,
-  RelativePositionControlModuleConstants,
   RobotType,
   Alliance, 
   PID, 
@@ -21,8 +17,8 @@ from lib.classes import (
   SwerveModuleConstants, 
   SwerveModuleConfig, 
   SwerveModuleLocation, 
-  TargetAlignmentConstants,
-  RotationAlignmentConstants,
+  PoseAlignmentConstants,
+  HeadingAlignmentConstants,
   PoseSensorConfig
 )
 from core.classes import Target
@@ -37,14 +33,14 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 4.46
+    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 5.74
     ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
-      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkFlex,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
-      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEO],
+      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEOVortex],
       drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[SwerveModuleGearKit.Medium],
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
@@ -65,7 +61,7 @@ class Subsystems:
     PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
-    TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
+    TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
       translationPID = PID(2.0, 0, 0),
       translationMaxVelocity = 1.5,
       translationMaxAcceleration = 0.75,
@@ -76,38 +72,18 @@ class Subsystems:
       rotationPositionTolerance = 0.5
     )
 
-    TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
+    TARGET_HEADING_ALIGNMENT_CONSTANTS = HeadingAlignmentConstants(
       rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
 
-    DRIFT_CORRECTION_CONSTANTS = RotationAlignmentConstants(
+    DRIFT_CORRECTION_CONSTANTS = HeadingAlignmentConstants(
       rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
 
     INPUT_LIMIT_DEMO: units.percent = 0.5
     INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
-
-  class Turret:
-    TURRET_CONFIG = RelativePositionControlModuleConfig("Turret", 13, False, RelativePositionControlModuleConstants(
-      motorControllerType = SparkLowLevel.SparkModel.kSparkFlex,
-      motorType = SparkLowLevel.MotorType.kBrushless,
-      motorCurrentLimit = 80,
-      motorRelativeEncoderPositionConversionFactor = 360.0 / 21.0,
-      motorPID = PID(0.025, 0, 0.0025),
-      motorOutputRange = Range(-0.5, 0.5),
-      motorFeedForwardGains  = FeedForwardGains(0, 12.0/6780, 0 , 0),
-      motorMotionCruiseVelocity = 40000.0,
-      motorMotionMaxAcceleration = 80000.0,
-      motorMotionAllowedProfileError = 0.25,
-      motorSoftLimitForward = 170.0,
-      motorSoftLimitReverse = -160.0,
-      motorHomingSpeed = 0.1,
-      motorHomedPosition = -170
-    ))
-
-    INPUT_LIMIT: units.percent = 1.0
 
 class Services:
   class Localization:
@@ -145,7 +121,7 @@ class Game:
     NAME: str = "MiniBot"
 
   class Commands:
-    AUTO_TARGET_ALIGNMENT_TIMEOUT: units.seconds = 1.5
+    AUTO_ALIGNMENT_TIMEOUT: units.seconds = 1.5
 
   class Field:
     LENGTH = _aprilTagFieldLayout.getFieldLength()
