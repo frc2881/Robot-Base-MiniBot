@@ -17,8 +17,8 @@ from lib.classes import (
   SwerveModuleConstants, 
   SwerveModuleConfig, 
   SwerveModuleLocation, 
-  TargetAlignmentConstants,
-  RotationAlignmentConstants,
+  PoseAlignmentConstants,
+  HeadingAlignmentConstants,
   PoseSensorConfig
 )
 from core.classes import Target
@@ -61,7 +61,7 @@ class Subsystems:
     PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
-    TARGET_ALIGNMENT_CONSTANTS = TargetAlignmentConstants(
+    TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
       translationPID = PID(2.0, 0, 0),
       translationMaxVelocity = 1.5,
       translationMaxAcceleration = 0.75,
@@ -72,12 +72,12 @@ class Subsystems:
       rotationPositionTolerance = 0.5
     )
 
-    TARGET_LOCK_CONSTANTS = RotationAlignmentConstants(
+    TARGET_HEADING_ALIGNMENT_CONSTANTS = HeadingAlignmentConstants(
       rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
 
-    DRIFT_CORRECTION_CONSTANTS = RotationAlignmentConstants(
+    DRIFT_CORRECTION_CONSTANTS = HeadingAlignmentConstants(
       rotationPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
@@ -121,7 +121,7 @@ class Game:
     NAME: str = "MiniBot"
 
   class Commands:
-    AUTO_TARGET_ALIGNMENT_TIMEOUT: units.seconds = 1.5
+    AUTO_ALIGNMENT_TIMEOUT: units.seconds = 1.5
 
   class Field:
     LENGTH = _aprilTagFieldLayout.getFieldLength()

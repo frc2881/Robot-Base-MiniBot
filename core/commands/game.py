@@ -13,24 +13,24 @@ class Game:
     ) -> None:
     self._robot = robot
 
-  def lockRobotToTarget(self, target: Target) -> Command:
+  def alignRobotToTargetPose(self, target: Target) -> Command:
     return (
-      self._robot.drive.lockToTarget(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
-      .withName(f'Game:LockRobotToTarget:{ target.name }')
-    )
-  
-  def isRobotLockedToTarget(self) -> bool:
-    return self._robot.drive.isLockedToTarget()
-
-  def alignRobotToTarget(self, target: Target) -> Command:
-    return (
-      self._robot.drive.alignToTarget(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
+      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
-      .withName(f'Game:AlignRobotToTarget:{ target.name }')
+      .withName(f'Game:AlignRobotToTargetPose:{ target.name }')
     )
   
-  def isRobotAlignedToTarget(self) -> bool:
-    return self._robot.drive.isAlignedToTarget()
+  def isRobotAlignedToTargetPose(self) -> bool:
+    return self._robot.drive.isAlignedToTargetPose()
+
+  def alignRobotToTargetHeading(self, target: Target) -> Command:
+    return (
+      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
+      .withName(f'Game:AlignRobotToTargetHeading:{ target.name }')
+    )
+  
+  def isRobotAlignedToTargetHeading(self) -> bool:
+    return self._robot.drive.isAlignedToTargetHeading()
 
   def rumbleControllers(
     self, 

@@ -33,27 +33,27 @@ class Drive(Subsystem):
     self._driftCorrectionController.setTolerance(self._constants.DRIFT_CORRECTION_CONSTANTS.rotationPositionTolerance)
     self._driftCorrectionController.enableContinuousInput(-180.0, 180.0)
 
-    self._targetLockState = State.Stopped
-    self._targetLockController = PIDController(*self._constants.TARGET_LOCK_CONSTANTS.rotationPID)
-    self._targetLockController.setTolerance(self._constants.TARGET_LOCK_CONSTANTS.rotationPositionTolerance)
-    self._targetLockController.enableContinuousInput(-180.0, 180.0)
-    self._targetLockRotationInput: units.percent = 0
+    self._targetHeadingAlignmentState = State.Stopped
+    self._targetHeadingAlignmentController = PIDController(*self._constants.TARGET_HEADING_ALIGNMENT_CONSTANTS.rotationPID)
+    self._targetHeadingAlignmentController.setTolerance(self._constants.TARGET_HEADING_ALIGNMENT_CONSTANTS.rotationPositionTolerance)
+    self._targetHeadingAlignmentController.enableContinuousInput(-180.0, 180.0)
+    self._targetHeadingAlignmentRotationInput: units.percent = 0
 
-    self._targetAlignmentState = State.Stopped
-    self._targetAlignmentController = HolonomicDriveController(
-      PIDController(*self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPID),
-      PIDController(*self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPID),
+    self._targetPoseAlignmentState = State.Stopped
+    self._targetPoseAlignmentController = HolonomicDriveController(
+      PIDController(*self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPID),
+      PIDController(*self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPID),
       ProfiledPIDControllerRadians(
-        *self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationPID, 
-        TrapezoidProfileRadians.Constraints(self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationMaxVelocity, self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationMaxAcceleration)
+        *self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationPID, 
+        TrapezoidProfileRadians.Constraints(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity, self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxAcceleration)
       )
     )
-    self._targetAlignmentController.setTolerance(Pose2d(
-      self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
-      self._constants.TARGET_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
-      Rotation2d.fromDegrees(self._constants.TARGET_ALIGNMENT_CONSTANTS.rotationPositionTolerance))
+    self._targetPoseAlignmentController.setTolerance(Pose2d(
+      self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
+      self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPositionTolerance, 
+      Rotation2d.fromDegrees(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationPositionTolerance))
     )
-    self._targetAlignmentController.getThetaController().enableContinuousInput(units.degreesToRadians(-180.0), units.degreesToRadians(180.0))
+    self._targetPoseAlignmentController.getThetaController().enableContinuousInput(units.degreesToRadians(-180.0), units.degreesToRadians(180.0))
 
     self._targetPose: Pose3d | None = None
 
@@ -99,8 +99,8 @@ class Drive(Subsystem):
     ).withName("Drive:Drive")
 
   def _runDrive(self, translationXInput: units.percent, translationYInput: units.percent, rotationInput: units.percent) -> None:
-    if self._targetLockState == State.Running:
-      rotationInput = self._targetLockRotationInput
+    if self._targetHeadingAlignmentState == State.Running:
+      rotationInput = self._targetHeadingAlignmentRotationInput
     else:
       if self._driftCorrection == State.Enabled:
         isTranslating: bool = translationXInput != 0 or translationYInput != 0
@@ -148,17 +148,16 @@ class Drive(Subsystem):
             SwerveDrive4Kinematics.desaturateWheelSpeeds(
               self._constants.DRIVE_KINEMATICS.toSwerveModuleStates(chassisSpeeds), 
               self._constants.TRANSLATION_MAX_VELOCITY
-            )
-          ), 0.02
+            )), 0.02
         )
       ), self._constants.TRANSLATION_MAX_VELOCITY
     )
     for index, module in enumerate(self._modules):
       module.setTargetState(swerveModuleStates[index])
 
-    if self._targetAlignmentState != State.Running:
+    if self._targetPoseAlignmentState != State.Running:
       if chassisSpeeds.vx != 0 or chassisSpeeds.vy != 0 or chassisSpeeds.omega != 0:
-        self._targetAlignmentState = State.Stopped
+        self._targetPoseAlignmentState = State.Stopped
 
   def _getModuleStates(self) -> tuple[SwerveModuleState, ...]:
     return tuple(module.getState() for module in self._modules)
@@ -169,79 +168,80 @@ class Drive(Subsystem):
 
   def lockSwerveModules(self) -> Command:
     return self.startEnd(
-      lambda: self._setSwerveModuleLockPosition(Position.Locked),
-      lambda: self._setSwerveModuleLockPosition(Position.Unlocked)
+      lambda: self._setSwerveModulesLockPosition(Position.Locked),
+      lambda: self._setSwerveModulesLockPosition(Position.Unlocked)
     ).withName("Drive:LockSwerveModules")
   
-  def _setSwerveModuleLockPosition(self, position: Position) -> None:
+  def _setSwerveModulesLockPosition(self, position: Position) -> None:
     self._modulesLockPosition = position
     if position == Position.Locked:
       for index, module in enumerate(self._modules): 
         module.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45 if index in { 0, 3 } else -45)))
 
-  def lockToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
+  def alignToTargetHeading(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return cmd.startRun(
-      lambda: self._initTargetLock(getTargetPose()),
-      lambda: self._runTargetLock(getRobotPose())
+      lambda: self._initTargetHeadingAlignment(getTargetPose()),
+      lambda: self._runTargetHeadingAlignment(getRobotPose())
     ).finallyDo(
-      lambda end: self._endTargetLock()
-    ).withName("Drive:LockToTarget")
+      lambda end: self._endTargetHeadingAlignment()
+    )
 
-  def _initTargetLock(self, targetPose: Pose3d) -> None:
-    self._targetLockController.reset()
+  def _initTargetHeadingAlignment(self, targetPose: Pose3d) -> None:
+    self._targetHeadingAlignmentController.reset()
     self._targetPose = targetPose
-    self._targetLockState = State.Running
+    self._targetHeadingAlignmentState = State.Running
 
-  def _runTargetLock(self, robotPose: Pose2d) -> None:
-    self._targetLockController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, self._targetPose)))
-    self._targetLockRotationInput = self._targetLockController.calculate(robotPose.rotation().degrees()) if not self._targetLockController.atSetpoint() else 0
+  def _runTargetHeadingAlignment(self, robotPose: Pose2d) -> None:
+    self._targetHeadingAlignmentController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, self._targetPose)))
+    self._targetHeadingAlignmentRotationInput = self._targetHeadingAlignmentController.calculate(robotPose.rotation().degrees()) if not self._targetHeadingAlignmentController.atSetpoint() else 0
 
-  def _endTargetLock(self) -> None:
-    self._targetLockState = State.Stopped
+  def _endTargetHeadingAlignment(self) -> None:
+    self._targetHeadingAlignmentState = State.Stopped
     self._targetPose = None
-    self._targetLockRotationInput = 0
+    self._targetHeadingAlignmentRotationInput = 0
 
-  def isLockedToTarget(self) -> bool:
-    return self._targetLockState == State.Running and self._targetLockController.atSetpoint()
+  def isAlignedToTargetHeading(self) -> bool:
+    return self._targetHeadingAlignmentState == State.Running and self._targetHeadingAlignmentController.atSetpoint()
 
-  def alignToTarget(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
+  def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return self.startRun(
-      lambda: self._initTargetAlignment(getRobotPose(), getTargetPose()),
-      lambda: self._runTargetAlignment(getRobotPose())
+      lambda: self._initTargetPoseAlignment(getRobotPose(), getTargetPose()),
+      lambda: self._runTargetPoseAlignment(getRobotPose())
     ).until(
-      lambda: self._targetAlignmentState == State.Completed
+      lambda: self._targetPoseAlignmentState == State.Completed
     ).finallyDo(
-      lambda end: self._endTargetAlignment()
-    ).withName("Drive:AlignToTarget")
+      lambda end: self._endTargetPoseAlignment()
+    )
   
-  def _initTargetAlignment(self, targetPose: Pose3d) -> None:
+  def _initTargetPoseAlignment(self, targetPose: Pose3d) -> None:
     self._targetPose = targetPose
-    self._targetAlignmentState = State.Running
+    self._targetPoseAlignmentState = State.Running
 
-  def _runTargetAlignment(self, robotPose: Pose2d) -> None:
+  def _runTargetPoseAlignment(self, robotPose: Pose2d) -> None:
     # TODO: try applying relative/percentage speed limiters to translational velocity (rotational velocity is already being constrained in controller setup)
-    self._setModuleStates(self._targetAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()))
-    if self._targetAlignmentController.atReference():
-      self._targetAlignmentState = State.Completed
+    self._setModuleStates(self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()))
+    if self._targetPoseAlignmentController.atReference():
+      self._targetPoseAlignmentState = State.Completed
 
-  def _endTargetAlignment(self) -> None:
+  def _endTargetPoseAlignment(self) -> None:
     self._setModuleStates(ChassisSpeeds())
-    if self._targetAlignmentState != State.Completed:
-      self._targetAlignmentState = State.Stopped
+    if self._targetPoseAlignmentState != State.Completed:
+      self._targetPoseAlignmentState = State.Stopped
     self._targetPose = None
 
-  def isAlignedToTarget(self) -> bool:
-    return self._targetAlignmentState == State.Completed
+  def isAlignedToTargetPose(self) -> bool:
+    return self._targetPoseAlignmentState == State.Completed
   
   def reset(self) -> None:
     self.setChassisSpeeds(ChassisSpeeds())
     self._driftCorrectionState == State.Stopped
-    self._targetLockState == State.Stopped
-    self._targetAlignmentState = State.Stopped
+    self._targetHeadingAlignmentState == State.Stopped
+    self._targetPoseAlignmentState = State.Stopped
 
   def _updateTelemetry(self) -> None:
     self._modulesStatesPublisher.set(self._getModuleStates())
-    SmartDashboard.putBoolean("Robot/Drive/IsLockedToTarget", self.isLockedToTarget())
-    SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTarget", self.isAlignedToTarget())
-    SmartDashboard.putString("Robot/Drive/TargetAlignmentState", self._targetAlignmentState.name)
+    SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTargetHeading", self.isAlignedToTargetHeading())
+    SmartDashboard.putString("Robot/Drive/TargetHeadingAlignmentState", self._targetHeadingAlignmentState.name)
+    SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTargetPose", self.isAlignedToTargetPose())
+    SmartDashboard.putString("Robot/Drive/TargetPoseAlignmentState", self._targetPoseAlignmentState.name)
     SmartDashboard.putString("Robot/Drive/Modules/LockPosition", self._modulesLockPosition.name)
