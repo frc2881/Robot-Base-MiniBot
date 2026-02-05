@@ -205,7 +205,7 @@ class Drive(Subsystem):
 
   def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return self.startRun(
-      lambda: self._initTargetPoseAlignment(getRobotPose(), getTargetPose()),
+      lambda: self._initTargetPoseAlignment(getTargetPose()),
       lambda: self._runTargetPoseAlignment(getRobotPose())
     ).until(
       lambda: self._targetPoseAlignmentState == State.Completed
