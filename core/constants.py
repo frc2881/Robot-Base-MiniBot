@@ -65,7 +65,7 @@ class Subsystems:
       translationPID = PID(2.0, 0, 0),
       translationMaxVelocity = 1.5,
       translationMaxAcceleration = 0.75,
-      translationPositionTolerance = 0.025,
+      translationPositionTolerance = 0.05,
       rotationPID = PID(2.0, 0, 0),
       rotationMaxVelocity = 720.0,
       rotationMaxAcceleration = 360.0,
