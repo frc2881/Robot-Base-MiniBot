@@ -33,14 +33,14 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 4.46
+    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 5.74
     ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
-      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkFlex,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
-      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEO],
+      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEOVortex],
       drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[SwerveModuleGearKit.Medium],
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
@@ -95,7 +95,7 @@ class Services:
 class Sensors: 
   class Gyro:
     class NAVX2:
-      COM_TYPE = AHRS.NavXComType.kUSB1
+      COM_TYPE = AHRS.NavXComType.kMXP_SPI
   
   class Pose:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
