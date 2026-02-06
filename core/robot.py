@@ -1,9 +1,9 @@
-from commands2 import cmd
 from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
 from lib.controllers.xbox import XboxController
 from lib.sensors.gyro_navx2 import Gyro_NAVX2
 from lib.sensors.pose import PoseSensor
+from lib.sensors.object import ObjectSensor
 from core.commands.auto import Auto
 from core.commands.game import Game
 from core.subsystems.drive import Drive
@@ -25,16 +25,13 @@ class RobotCore:
   def _initSensors(self) -> None:
     self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX2.COM_TYPE)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS)
+    self.objectSensor = ObjectSensor(constants.Sensors.Object.OBJECT_SENSOR_CONFIG)
 
   def _initSubsystems(self) -> None:
     self.drive = Drive(self.gyro.getHeading)
     
   def _initServices(self) -> None:
-    self.localization = Localization(
-      self.gyro.getHeading, 
-      self.drive.getModulePositions, 
-      self.poseSensors
-    )
+    self.localization = Localization(self.gyro.getHeading, self.drive.getModulePositions, self.poseSensors, self.objectSensor)
 
   def _initCommands(self) -> None:
     self.game = Game(self)
@@ -61,7 +58,7 @@ class RobotCore:
     # self.driver.povDown().whileTrue(cmd.none())
     self.driver.povLeft().whileTrue(self.game.alignRobotToTargetPose(Target.TowerLeft))
     self.driver.povRight().whileTrue(self.game.alignRobotToTargetPose(Target.TowerRight))
-    # self.driver.a().whileTrue(cmd.none())
+    self.driver.a().whileTrue(self.game.alignRobotToNearestFuel())
     self.driver.b().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchRight))
     # self.driver.y().whileTrue(cmd.none())
     self.driver.x().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchLeft))

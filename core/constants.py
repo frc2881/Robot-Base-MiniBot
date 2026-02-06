@@ -19,7 +19,8 @@ from lib.classes import (
   SwerveModuleLocation, 
   PoseAlignmentConstants,
   HeadingAlignmentConstants,
-  PoseSensorConfig
+  PoseSensorConfig,
+  ObjectSensorConfig
 )
 from core.classes import Target
 import lib.constants
@@ -105,6 +106,14 @@ class Sensors:
         stream = "http://10.28.81.6:1182/?action=stream", 
         aprilTagFieldLayout = _aprilTagFieldLayout
       ),
+    )
+
+  class Object:
+    OBJECT_SENSOR_CONFIG = ObjectSensorConfig(
+      name = "Fuel", 
+      transform = Transform3d(Translation3d(units.inchesToMeters(-11.0), units.inchesToMeters(-4.0), units.inchesToMeters(24.0)), Rotation3d(0, units.degreesToRadians(25.0), units.degreesToRadians(0))),
+      stream = "http://10.28.81.6:1182/?action=stream",
+      objectHeight = units.inchesToMeters(5.71)
     )
 
 class Cameras:
