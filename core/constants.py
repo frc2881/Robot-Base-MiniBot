@@ -19,7 +19,8 @@ from lib.classes import (
   SwerveModuleLocation, 
   PoseAlignmentConstants,
   HeadingAlignmentConstants,
-  PoseSensorConfig
+  PoseSensorConfig,
+  ObjectSensorConfig
 )
 from core.classes import Target
 import lib.constants
@@ -62,13 +63,13 @@ class Subsystems:
     PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
 
     TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
-      translationPID = PID(2.0, 0, 0),
-      translationMaxVelocity = 1.5,
+      translationPID = PID(3.0, 0, 0),
+      translationMaxVelocity = 2.0,
       translationMaxAcceleration = 0.75,
-      translationPositionTolerance = 0.05,
-      rotationPID = PID(2.0, 0, 0),
+      translationPositionTolerance = 0.025,
+      rotationPID = PID(3.0, 0, 0),
       rotationMaxVelocity = 720.0,
-      rotationMaxAcceleration = 360.0,
+      rotationMaxAcceleration = 540.0,
       rotationPositionTolerance = 0.5
     )
 
@@ -105,6 +106,14 @@ class Sensors:
         stream = "http://10.28.81.6:1182/?action=stream", 
         aprilTagFieldLayout = _aprilTagFieldLayout
       ),
+    )
+
+  class Object:
+    OBJECT_SENSOR_CONFIG = ObjectSensorConfig(
+      name = "Fuel", 
+      transform = Transform3d(Translation3d(units.inchesToMeters(0), units.inchesToMeters(-7.0), units.inchesToMeters(22.0)), Rotation3d(0, units.degreesToRadians(6.6), units.degreesToRadians(15.0))),
+      stream = "http://10.28.81.6:1182/?action=stream",
+      objectHeight = units.inchesToMeters(5.71)
     )
 
 class Cameras:
@@ -145,8 +154,8 @@ class Game:
           Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
           Target.CornerLeft: Pose3d(0.280, 7.790, 0, Rotation3d(Rotation2d.fromDegrees(-45))),
           Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(45))),
-          Target.TowerLeft: Pose3d(1.385, 4.350, 0, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.TowerRight: Pose3d(1.385, 3.150, 0, Rotation3d(Rotation2d.fromDegrees(0))),
+          Target.TowerLeft: Pose3d(1.370, 4.180, 0, Rotation3d(Rotation2d.fromDegrees(180))),
+          Target.TowerRight: Pose3d(1.370, 3.320, 0, Rotation3d(Rotation2d.fromDegrees(180))),
           Target.TrenchLeft: Pose3d(3.664, 6.535, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
           Target.TrenchRight: Pose3d(3.664, 1.600, 0, Rotation3d(Rotation2d.fromDegrees(90))),
           Target.Outpost: Pose3d(0.280, 0.650, 0, Rotation3d(Rotation2d.fromDegrees(0))),
