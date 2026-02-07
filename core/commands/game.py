@@ -36,7 +36,7 @@ class Game:
     return (
       self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getObjectsPose())
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
-      .onlyIf(self._robot.localization.getObjectsCount() >= 10)
+      .onlyIf(lambda: self._robot.localization.getObjectsCount() >= 5)
       .withName(f'Game:AlignRobotToNearestFuel')
     )
 

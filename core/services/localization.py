@@ -114,8 +114,8 @@ class Localization():
   def getObjectsCount(self) -> int:
     return self._objectsCount
 
-  def getObjectsPose(self) -> Pose2d:
-    return self._robotPose.transformBy(self._objectsTransform)
+  def getObjectsPose(self) -> Pose3d:
+    return Pose3d(self._robotPose.transformBy(self._objectsTransform))
 
   def _updateTelemetry(self) -> None:
     self._robotPosePublisher.set(self.getRobotPose())
