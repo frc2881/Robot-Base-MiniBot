@@ -221,7 +221,9 @@ class Drive(Subsystem):
     self._setModuleStates(
       utils.clampTranslationVelocity(
         self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()), 
-        self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity))
+        self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity
+      )
+    )
     if self._targetPoseAlignmentController.atReference():
       self._targetPoseAlignmentState = State.Completed
 
