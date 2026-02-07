@@ -218,12 +218,10 @@ class Drive(Subsystem):
     self._targetPoseAlignmentState = State.Running
 
   def _runTargetPoseAlignment(self, robotPose: Pose2d) -> None:
-    chassisSpeeds = self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation())
-    largerSpeed = abs(chassisSpeeds.vx if abs(chassisSpeeds.vx) > abs(chassisSpeeds.vy) else chassisSpeeds.vy)
-    if (largerSpeed > self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity):
-      ratio = self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity / largerSpeed
-      chassisSpeeds = ChassisSpeeds(chassisSpeeds.vx * ratio, chassisSpeeds.vy * ratio, chassisSpeeds.omega)
-    self._setModuleStates(chassisSpeeds)
+    self._setModuleStates(
+      utils.clampTranslationVelocity(
+        self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()), 
+        self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity))
     if self._targetPoseAlignmentController.atReference():
       self._targetPoseAlignmentState = State.Completed
 
