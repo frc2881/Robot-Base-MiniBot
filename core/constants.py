@@ -117,7 +117,7 @@ class Sensors:
     )
 
 class Cameras:
-  DRIVER_STREAM = "http://10.28.81.6:1184/?action=stream"
+  DRIVER_STREAM = "http://10.28.81.6:1182/?action=stream"
 
 class Controllers:
   DRIVER_CONTROLLER_PORT: int = 0
