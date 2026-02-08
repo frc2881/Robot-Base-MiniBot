@@ -10,3 +10,23 @@ class Target(Enum):
   CornerRight = auto()
   Outpost = auto()
   Depot = auto()
+
+class MatchState(Enum):
+  Auto = auto()
+  Transition = auto()
+  Shift1 = auto()
+  Shift2 = auto()
+  Shift3 = auto()
+  Shift4 = auto()
+  EndGame = auto()
+
+class HubState(Enum):
+  Inactive = auto()
+  Active = auto()
+
+class LightsMode(Enum):
+  Default = auto()
+  RobotNotConnected = auto()
+  RobotNotHomed = auto()
+  VisionNotReady = auto()
+  LaunchReady = auto()

@@ -20,7 +20,6 @@ class Localization():
       poseSensors: tuple[PoseSensor, ...],
       objectSensor: ObjectSensor
     ) -> None:
-    super().__init__()
     self._getGyroHeading = getGyroHeading
     self._getDriveModulePositions = getDriveModulePositions
     self._poseSensors = poseSensors

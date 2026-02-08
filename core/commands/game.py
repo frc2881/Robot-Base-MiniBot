@@ -7,10 +7,7 @@ from core.classes import Target
 if TYPE_CHECKING: from core.robot import RobotCore
 
 class Game:
-  def __init__(
-      self,
-      robot: "RobotCore"
-    ) -> None:
+  def __init__(self, robot: "RobotCore") -> None:
     self._robot = robot
 
   def alignRobotToTargetPose(self, target: Target) -> Command:

@@ -8,6 +8,7 @@ from core.commands.auto import Auto
 from core.commands.game import Game
 from core.subsystems.drive import Drive
 from core.services.localization import Localization
+from core.services.match import Match
 from core.classes import Target
 import core.constants as constants
 
@@ -32,6 +33,7 @@ class RobotCore:
     
   def _initServices(self) -> None:
     self.localization = Localization(self.gyro.getHeading, self.drive.getModulePositions, self.poseSensors, self.objectSensor)
+    self.match = Match()  
 
   def _initCommands(self) -> None:
     self.game = Game(self)
