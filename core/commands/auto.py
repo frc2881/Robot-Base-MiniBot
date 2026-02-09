@@ -14,10 +14,7 @@ class AutoPath(Enum):
   Move_1 = auto()
 
 class Auto:
-  def __init__(
-      self,
-      robot: "RobotCore"
-    ) -> None:
+  def __init__(self, robot: "RobotCore") -> None:
     self._robot = robot
 
     self._paths = { path: PathPlannerPath.fromPathFile(path.name) for path in AutoPath }

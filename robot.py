@@ -1,12 +1,14 @@
 #! python3
 
 from commands2 import CommandScheduler, cmd, TimedCommandRobot
+from rev import StatusLogger
 from lib import logger, telemetry, utils
 from lib.classes import RobotMode
 from core.robot import RobotCore
 
 class Robot(TimedCommandRobot):
   def __init__(self) -> None:
+    StatusLogger.disableAutoLogging()
     TimedCommandRobot.__init__(self)
     utils.setRobotInstance(self)
     logger.start()

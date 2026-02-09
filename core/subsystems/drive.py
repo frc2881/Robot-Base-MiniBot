@@ -1,9 +1,9 @@
-from typing import Callable
+from typing import Callable, Optional
 from commands2 import Subsystem, Command, cmd
 from wpilib import SmartDashboard, SendableChooser
 from wpimath import units
-from wpimath.controller import PIDController, ProfiledPIDController, ProfiledPIDControllerRadians, HolonomicDriveController
-from wpimath.trajectory import TrapezoidProfile, TrapezoidProfileRadians
+from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
+from wpimath.trajectory import TrapezoidProfileRadians
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
@@ -45,7 +45,7 @@ class Drive(Subsystem):
       PIDController(*self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPID),
       ProfiledPIDControllerRadians(
         *self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationPID, 
-        TrapezoidProfileRadians.Constraints(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity, self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxAcceleration)
+        TrapezoidProfileRadians.Constraints(units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity), units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxAcceleration))
       )
     )
     self._targetPoseAlignmentController.setTolerance(Pose2d(
@@ -55,7 +55,7 @@ class Drive(Subsystem):
     )
     self._targetPoseAlignmentController.getThetaController().enableContinuousInput(units.degreesToRadians(-180.0), units.degreesToRadians(180.0))
 
-    self._targetPose: Pose3d | None = None
+    self._targetPose: Optional[Pose3d] = None
 
     self._translationXInputLimiter = SlewRateLimiter(self._constants.INPUT_RATE_LIMIT_DEMO)
     self._translationYInputLimiter = SlewRateLimiter(self._constants.INPUT_RATE_LIMIT_DEMO)
@@ -218,8 +218,12 @@ class Drive(Subsystem):
     self._targetPoseAlignmentState = State.Running
 
   def _runTargetPoseAlignment(self, robotPose: Pose2d) -> None:
-    # TODO: try applying relative/percentage speed limiters to translational velocity (rotational velocity is already being constrained in controller setup)
-    self._setModuleStates(self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()))
+    self._setModuleStates(
+      utils.clampTranslationVelocity(
+        self._targetPoseAlignmentController.calculate(robotPose, self._targetPose.toPose2d(), 0, self._targetPose.toPose2d().rotation()), 
+        self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity
+      )
+    )
     if self._targetPoseAlignmentController.atReference():
       self._targetPoseAlignmentState = State.Completed
 
