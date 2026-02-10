@@ -8,5 +8,5 @@ requires = [
   "robotpy-rev==2026.0.1",
   "robotpy-navx==2026.0.0",
   "robotpy-pathplannerlib==2026.1.2",
-  "photonlibpy==2026.2.1"
+  "photonlibpy==2026.2.2"
 ]
