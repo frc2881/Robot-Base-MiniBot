@@ -4,6 +4,7 @@ from wpilib import RobotBase
 from lib import logger, utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern
 from core.classes import Target
+import core.constants as constants
 if TYPE_CHECKING: from core.robot import RobotCore
 
 class Game:
@@ -12,28 +13,23 @@ class Game:
 
   def alignRobotToTargetPose(self, target: Target) -> Command:
     return (
-      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
+      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target).toPose2d())
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
       .withName(f'Game:AlignRobotToTargetPose:{ target.name }')
     )
   
-  def _isRobotAlignedToTargetPose(self) -> bool:
-    return self._robot.drive.isAlignedToTargetPose()
-
   def alignRobotToTargetHeading(self, target: Target) -> Command:
     return (
-      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target))
+      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotHeading, lambda: self._robot.localization.getTargetHeading(target))
       .withName(f'Game:AlignRobotToTargetHeading:{ target.name }')
     )
-  
-  def _isRobotAlignedToTargetHeading(self) -> bool:
-    return self._robot.drive.isAlignedToTargetHeading()
+
   
   def alignRobotToNearestFuel(self) -> Command:
     return (
-      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getObjectsPose())
+      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, self._robot.localization.getObjectsPose)
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
-      .onlyIf(lambda: self._robot.localization.getObjectsCount() >= 5)
+      .onlyIf(lambda: self._robot.localization.getObjectsCount() >= 5) # TODO: make a constant for and validate minimum fuel count to target if we use this feature on the robot
       .withName(f'Game:AlignRobotToNearestFuel')
     )
 

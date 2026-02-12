@@ -138,6 +138,7 @@ class Game:
     BOUNDS = (Translation2d(0, 0), Translation2d(LENGTH, WIDTH))
 
     class Targets:
+      # TODO: properly configure and tune all target poses (rough/temp placeholders for now)
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Red: {
           Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(180))),
