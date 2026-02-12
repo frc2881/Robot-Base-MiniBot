@@ -5,7 +5,7 @@ from wpimath import units
 from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
 from wpimath.trajectory import TrapezoidProfileRadians
 from wpimath.filter import SlewRateLimiter
-from wpimath.geometry import Rotation2d, Pose2d
+from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from ntcore import NetworkTableInstance
 from pathplannerlib.util import DriveFeedforwards
@@ -176,10 +176,10 @@ class Drive(Subsystem):
       for index, module in enumerate(self._modules): 
         module.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45 if index in { 0, 3 } else -45)))
 
-  def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose2d]) -> Command:
+  def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return self.startRun(
       lambda: self._initTargetPoseAlignment(),
-      lambda: self._runTargetPoseAlignment(getRobotPose(), getTargetPose())
+      lambda: self._runTargetPoseAlignment(getRobotPose(), getTargetPose().toPose2d())
     ).until(
       lambda: self._targetPoseAlignmentState == State.Completed
     ).finallyDo(
@@ -207,10 +207,10 @@ class Drive(Subsystem):
   def isAlignedToTargetPose(self) -> bool:
     return self._targetPoseAlignmentState == State.Completed
 
-  def alignToTargetHeading(self, getRobotHeading: Callable[[], units.degrees], getTargetHeading: Callable[[], units.degrees]) -> Command:
+  def alignToTargetHeading(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return cmd.startRun(
       lambda: self._initTargetHeadingAlignment(),
-      lambda: self._runTargetHeadingAlignment(getRobotHeading(), getTargetHeading())
+      lambda: self._runTargetHeadingAlignment(getRobotPose(), getTargetPose().toPose2d())
     ).finallyDo(
       lambda end: self._endTargetHeadingAlignment()
     )
@@ -219,9 +219,9 @@ class Drive(Subsystem):
     self._targetHeadingAlignmentController.reset()
     self._targetHeadingAlignmentState = State.Running
 
-  def _runTargetHeadingAlignment(self, robotHeading: units.degrees, targetHeading: units.degrees) -> None:
-    self._targetHeadingAlignmentController.setSetpoint(targetHeading)
-    self._targetHeadingAlignmentRotationInput = self._targetHeadingAlignmentController.calculate(robotHeading) if not self._targetHeadingAlignmentController.atSetpoint() else 0
+  def _runTargetHeadingAlignment(self, robotPose: Pose2d, targetPose: Pose2d) -> None:
+    self._targetHeadingAlignmentController.setSetpoint(utils.getTargetHeading(robotPose, targetPose))
+    self._targetHeadingAlignmentRotationInput = self._targetHeadingAlignmentController.calculate(robotPose.rotation().degrees()) if not self._targetHeadingAlignmentController.atSetpoint() else 0
 
   def _endTargetHeadingAlignment(self) -> None:
     self._targetHeadingAlignmentState = State.Stopped
