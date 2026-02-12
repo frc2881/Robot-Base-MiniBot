@@ -118,12 +118,8 @@ class RobotCore:
   def reset(self) -> None:
     self.drive.reset()
 
-  def _isHomed(self) -> bool:
-    return (
-      True
-      if not utils.isCompetitionMode() else 
-      True
-    )
+  def isHomed(self) -> bool:
+    return True
       
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean("Robot/Status/IsHomed", self._isHomed())
+    SmartDashboard.putBoolean("Robot/Status/IsHomed", self.isHomed())
