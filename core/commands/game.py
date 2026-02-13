@@ -20,11 +20,10 @@ class Game:
   
   def alignRobotToTargetHeading(self, target: Target) -> Command:
     return (
-      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotHeading, lambda: self._robot.localization.getTargetHeading(target))
+      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target).toPose2d())
       .withName(f'Game:AlignRobotToTargetHeading:{ target.name }')
     )
 
-  
   def alignRobotToNearestFuel(self) -> Command:
     return (
       self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, self._robot.localization.getObjectsPose)
