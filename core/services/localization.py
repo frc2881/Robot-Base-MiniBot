@@ -18,7 +18,7 @@ class Localization():
       getGyroHeading: Callable[[], units.degrees],
       getDriveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]],
       poseSensors: tuple[PoseSensor, ...],
-      objectSensor: ObjectSensor
+      objectSensor: ObjectSensor | None
     ) -> None:
     self._getGyroHeading = getGyroHeading
     self._getDriveModulePositions = getDriveModulePositions
@@ -57,24 +57,27 @@ class Localization():
 
   def _updateRobotPose(self) -> None:
     self._poseEstimator.update(Rotation2d.fromDegrees(self._getGyroHeading()), self._getDriveModulePositions())
+    estimatedRobotPosition = self._poseEstimator.getEstimatedPosition()
     hasValidVisionTarget = False
     for poseSensor in self._poseSensors:
       estimatedRobotPose = poseSensor.getEstimatedRobotPose()
       if estimatedRobotPose is not None:
         estimatedPose = estimatedRobotPose.estimatedPose.toPose2d()
         if utils.isPoseInBounds(estimatedPose, constants.Game.Field.BOUNDS):
-          poseAmbiguity = estimatedRobotPose.targetsUsed[0].getPoseAmbiguity()
-          if utils.isValueInRange(poseAmbiguity, -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
-            hasValidVisionTarget = True
+          hasValidVisionTarget = True
+          for target in estimatedRobotPose.targetsUsed:
+            if not utils.isValueInRange(target.getPoseAmbiguity(), -1, constants.Services.Localization.VISION_MAX_POSE_AMBIGUITY):
+              hasValidVisionTarget = False
+          if hasValidVisionTarget:
             if (
               utils.getRobotState() == RobotState.Disabled or 
-              utils.isValueInRange(estimatedPose.translation().distance(self._poseEstimator.getEstimatedPosition().translation()), 0, constants.Services.Localization.VISION_MAX_ESTIMATED_POSE_DELTA)
+              utils.isValueInRange(utils.getTargetDistance(estimatedPose, estimatedRobotPosition), 0, constants.Services.Localization.VISION_MAX_ESTIMATED_POSE_DELTA)
             ):
               self._poseEstimator.addVisionMeasurement(
                 estimatedPose, 
                 estimatedRobotPose.timestampSeconds,
                 constants.Services.Localization.VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS
-                if poseAmbiguity == -1 else
+                if len(estimatedRobotPose.targetsUsed) > 1 else
                 constants.Services.Localization.VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS
               )     
     self._robotPose = self._poseEstimator.getEstimatedPosition()
@@ -90,9 +93,6 @@ class Localization():
 
   def getRobotPose(self) -> Pose2d:
     return self._robotPose
-  
-  def getRobotHeading(self) -> units.degrees:
-    return self._robotPose.rotation().degrees()
 
   def resetRobotPose(self, pose: Pose2d) -> None:
     self._poseEstimator.resetPose(pose)
@@ -100,7 +100,7 @@ class Localization():
   def getTargetPose(self, target: Target) -> Pose3d:
     targetPose = self._targets.get(target)
     return targetPose if targetPose is not None else Pose3d(self._robotPose)
-
+  
   def _updateObjects(self) -> None:
     objects = self._objectSensor.getObjects()
     if objects is not None:

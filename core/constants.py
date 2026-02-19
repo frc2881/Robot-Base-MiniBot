@@ -11,7 +11,7 @@ from lib import logger, utils
 from lib.classes import (
   RobotType,
   Alliance, 
-  PID, 
+  PID,
   MotorModel,
   SwerveModuleGearKit,
   SwerveModuleConstants, 
@@ -34,15 +34,15 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    TRANSLATION_MAX_VELOCITY: units.meters_per_second = 4.46
-    ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
-
+    _drivingMotorModel = MotorModel.NEO
+    _swerveModuleGearKit = SwerveModuleGearKit.Medium
+    
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
       drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
-      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[MotorModel.NEO],
-      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[SwerveModuleGearKit.Medium],
+      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[_drivingMotorModel],
+      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[_swerveModuleGearKit],
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
@@ -59,17 +59,15 @@ class Subsystems:
 
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
-    PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
-    PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
+    TRANSLATION_MAX_VELOCITY: units.meters_per_second = lib.constants.Drive.SWERVE_MODULE_FREE_SPEEDS[_drivingMotorModel][_swerveModuleGearKit] * 1.0
+    ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
       translationPID = PID(3.0, 0, 0),
       translationMaxVelocity = 2.0,
-      translationMaxAcceleration = 0.75,
       translationPositionTolerance = 0.025,
       rotationPID = PID(3.0, 0, 0),
       rotationMaxVelocity = 720.0,
-      rotationMaxAcceleration = 540.0,
       rotationPositionTolerance = 0.5
     )
 
@@ -83,14 +81,17 @@ class Subsystems:
       rotationPositionTolerance = 0.5
     )
 
+    PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
+    PATHPLANNER_CONTROLLER = PPHolonomicDriveController(PIDConstants(5.0, 0, 0), PIDConstants(5.0, 0, 0))
+
     INPUT_LIMIT_DEMO: units.percent = 0.5
     INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
 
 class Services:
   class Localization:
     VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
-    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 3.0
-    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(2.5))
+    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
+    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(5.0))
     VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
 
 class Sensors: 
@@ -109,10 +110,11 @@ class Sensors:
     )
 
   class Object:
+    # TODO: configure real values for installed camera
     OBJECT_SENSOR_CONFIG = ObjectSensorConfig(
       name = "Fuel", 
-      transform = Transform3d(Translation3d(units.inchesToMeters(0), units.inchesToMeters(-7.0), units.inchesToMeters(22.0)), Rotation3d(0, units.degreesToRadians(6.6), units.degreesToRadians(15.0))),
-      stream = "http://10.28.81.6:1182/?action=stream",
+      transform = Transform3d(Translation3d(units.inchesToMeters(-11.0), units.inchesToMeters(-4.0), units.inchesToMeters(24.0)), Rotation3d(0, units.degreesToRadians(25.0), units.degreesToRadians(0))),
+      stream = "http://10.28.81.6:1186/?action=stream",
       objectHeight = units.inchesToMeters(5.71)
     )
 

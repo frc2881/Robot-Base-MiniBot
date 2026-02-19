@@ -5,7 +5,7 @@ from wpimath import units
 from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
 from wpimath.trajectory import TrapezoidProfileRadians
 from wpimath.filter import SlewRateLimiter
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from ntcore import NetworkTableInstance
 from pathplannerlib.util import DriveFeedforwards
@@ -45,7 +45,7 @@ class Drive(Subsystem):
       PIDController(*self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPID),
       ProfiledPIDControllerRadians(
         *self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationPID, 
-        TrapezoidProfileRadians.Constraints(units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity), units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxAcceleration))
+        TrapezoidProfileRadians.Constraints(units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity), units.degreesToRadians(self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.rotationMaxVelocity / 2))
       )
     )
     self._targetPoseAlignmentController.setTolerance(Pose2d(
