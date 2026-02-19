@@ -34,8 +34,8 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    _drivingMotorModel = MotorModel.NEO
-    _swerveModuleGearKit = SwerveModuleGearKit.Medium
+    _drivingMotorModel = MotorModel.NEOVortex
+    _swerveModuleGearKit = SwerveModuleGearKit.ExtraHigh2
     
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
