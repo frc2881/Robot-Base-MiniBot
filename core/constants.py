@@ -103,7 +103,10 @@ class Sensors:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       PoseSensorConfig(
         name = "Front",
-        transform = Transform3d(Translation3d(0.107311, -0.050843, 0.264506), Rotation3d(0.001834, -0.569486, -0.027619)),
+        transform = Transform3d(
+          Translation3d(x = units.inchesToMeters(4.25), y = units.inchesToMeters(-1.77), z = units.inchesToMeters(9.47)), 
+          Rotation3d(roll = units.degreesToRadians(-0.18), pitch = units.degreesToRadians(-32.77), yaw = units.degreesToRadians(-0.18))
+        ),
         stream = "http://10.28.81.6:1182/?action=stream", 
         aprilTagFieldLayout = _aprilTagFieldLayout
       ),
@@ -113,7 +116,10 @@ class Sensors:
     # TODO: configure real values for installed camera
     OBJECT_SENSOR_CONFIG = ObjectSensorConfig(
       name = "Fuel", 
-      transform = Transform3d(Translation3d(units.inchesToMeters(-11.0), units.inchesToMeters(-4.0), units.inchesToMeters(24.0)), Rotation3d(0, units.degreesToRadians(25.0), units.degreesToRadians(0))),
+      transform = Transform3d(
+        Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)), 
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(25.0), units.degreesToRadians(0))
+      ),
       stream = "http://10.28.81.6:1186/?action=stream",
       objectHeight = units.inchesToMeters(5.71)
     )
