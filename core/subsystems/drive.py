@@ -5,7 +5,7 @@ from wpimath import units
 from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
 from wpimath.trajectory import TrapezoidProfileRadians
 from wpimath.filter import SlewRateLimiter
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from ntcore import NetworkTableInstance
 from pathplannerlib.util import DriveFeedforwards
