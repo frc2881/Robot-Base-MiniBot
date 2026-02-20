@@ -12,6 +12,7 @@ class Target(Enum):
   Depot = auto()
 
 class MatchState(Enum):
+  Stopped = auto()
   Auto = auto()
   Transition = auto()
   Shift1 = auto()
