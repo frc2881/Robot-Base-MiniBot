@@ -1,4 +1,5 @@
 from typing import Optional
+import math
 from wpimath import units
 from wpilib import DriverStation, SmartDashboard
 from lib.classes import Alliance, RobotState, RobotMode
@@ -32,27 +33,27 @@ class Match():
         self._matchStateTime = matchTime
         self._hubState = HubState.Active
       if utils.getRobotMode() == RobotMode.Teleop:
-        if utils.isValueInRange(matchTime, 131, 140):
+        if utils.isValueInRange(matchTime, 130, 140):
           self._matchState = MatchState.Transition
           self._matchStateTime = matchTime - 130
           self._hubState = HubState.Active
-        if utils.isValueInRange(matchTime, 106, 130):
+        if utils.isValueInRange(matchTime, 105, 130):
           self._matchState = MatchState.Shift1
           self._matchStateTime = matchTime - 105
           self._hubState = HubState.Active if alliance != self._selectedAlliance and self._selectedAlliance is not None else HubState.Inactive
-        if utils.isValueInRange(matchTime, 81, 105):
+        if utils.isValueInRange(matchTime, 80, 105):
           self._matchState = MatchState.Shift2
           self._matchStateTime = matchTime - 80
           self._hubState = HubState.Active if alliance == self._selectedAlliance and self._selectedAlliance is not None else HubState.Inactive
-        if utils.isValueInRange(matchTime, 56, 80):
+        if utils.isValueInRange(matchTime, 55, 80):
           self._matchState = MatchState.Shift3
           self._matchStateTime = matchTime - 55
           self._hubState = HubState.Active if alliance != self._selectedAlliance and self._selectedAlliance is not None else HubState.Inactive
-        if utils.isValueInRange(matchTime, 31, 55):
+        if utils.isValueInRange(matchTime, 30, 55):
           self._matchState = MatchState.Shift4
           self._matchStateTime = matchTime - 30
           self._hubState = HubState.Active if alliance == self._selectedAlliance and self._selectedAlliance is not None else HubState.Inactive
-        if utils.isValueInRange(matchTime, 1, 30):
+        if utils.isValueInRange(matchTime, 0, 30):
           self._matchState = MatchState.EndGame
           self._matchStateTime = matchTime
           self._hubState = HubState.Active
@@ -73,5 +74,5 @@ class Match():
   def _updateTelemetry(self) -> None:
     SmartDashboard.putString("Match/SelectedAlliance", self._selectedAlliance.name if self._selectedAlliance is not None else "None")
     SmartDashboard.putString("Match/State", self.getMatchState().name)
-    SmartDashboard.putNumber("Match/StateTime", self.getMatchStateTime())
+    SmartDashboard.putNumber("Match/StateTime", math.floor(self.getMatchStateTime()))
     SmartDashboard.putString("Match/Hub", self.getHubState().name)
