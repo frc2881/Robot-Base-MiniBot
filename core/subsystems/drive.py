@@ -164,6 +164,12 @@ class Drive(Subsystem):
     for module in self._modules: module.setIdleMode(idleMode)
     SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name)
 
+  def holdCoastMode(self) -> Command:
+    return self.startEnd(
+      lambda: self._setIdleMode(MotorIdleMode.Coast),
+      lambda: self._setIdleMode(MotorIdleMode.Brake)
+    ).withName("Drive:HoldCoastMode")
+
   def lockSwerveModules(self) -> Command:
     return self.startEnd(
       lambda: self._setSwerveModulesLockPosition(Position.Locked),

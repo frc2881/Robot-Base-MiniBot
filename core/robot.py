@@ -65,7 +65,7 @@ class RobotCore:
     # self.driver.y().whileTrue(cmd.none())
     self.driver.x().whileTrue(self.game.alignRobotToTargetPose(Target.CornerLeft))
     # self.driver.start().whileTrue(cmd.none())
-    self.driver.back().debounce(0.5).whileTrue(self.gyro.reset())
+    self.driver.back().debounce(0.5).whileTrue(self.gyro.reset().ignoringDisable(True))
 
   def _setupOperator(self) -> None:
     pass
