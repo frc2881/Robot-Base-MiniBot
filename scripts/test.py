@@ -1,3 +1,3 @@
-import os
+import subprocess
 
-os.system("python -m robotpy test --isolated -- -v -s --exitfirst")
+subprocess.run("python -m robotpy test --isolated -- -v -s --exitfirst", shell = True, check = True)

@@ -1,3 +1,3 @@
-import os
+import subprocess
 
-os.system("python -m robotpy sim")
+subprocess.run("python -m robotpy sim", shell = True, check = True)

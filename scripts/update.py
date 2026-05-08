@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 try:
@@ -7,4 +6,4 @@ try:
 except subprocess.CalledProcessError as e:
   print(e.stderr)
 
-os.system("git submodule update --init")
+subprocess.run("git submodule update --init", shell = True, check = True)
