@@ -1,17 +1,19 @@
 import wpilib
 from wpimath import units
-from wpimath.geometry import Pose3d, Transform3d, Translation3d, Rotation3d, Translation2d, Rotation2d
+from wpimath.geometry import Pose2d, Pose3d, Rotation3d, Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 from navx import AHRS
 from rev import SparkLowLevel, AbsoluteEncoderConfig
 from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
+from pathplannerlib.path import FlippingUtil
 from lib import logger, utils
 from lib.classes import (
   RobotType,
   Alliance, 
   PID,
+  Zone,
   MotorModel,
   SwerveModuleGearKit,
   SwerveModuleConstants, 
@@ -19,8 +21,7 @@ from lib.classes import (
   SwerveModuleLocation, 
   PoseAlignmentConstants,
   HeadingAlignmentConstants,
-  PoseSensorConfig,
-  ObjectSensorConfig
+  PoseSensorConfig
 )
 from core.classes import Target
 import lib.constants
@@ -34,8 +35,8 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    _drivingMotorModel = MotorModel.NEO
-    _swerveModuleGearKit = SwerveModuleGearKit.Medium
+    _drivingMotorModel = MotorModel.NEOVortex
+    _swerveModuleGearKit = SwerveModuleGearKit.High
     
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
@@ -47,10 +48,10 @@ class Subsystems:
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
       turningMotorPID = PID(1.0, 0, 0),
-      turningMotorAbsoluteEncoderConfig = AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder
+      turningMotorAbsoluteEncoderConfig = AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder()
     )
 
-    SWERVE_MODULE_CONFIGS: tuple[SwerveModuleConfig, ...] = (
+    SWERVE_MODULE_CONFIGS: tuple[SwerveModuleConfig, SwerveModuleConfig, SwerveModuleConfig, SwerveModuleConfig] = (
       SwerveModuleConfig(SwerveModuleLocation.FrontLeft, 2, 3, -90, Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveModuleConstants),
       SwerveModuleConfig(SwerveModuleLocation.FrontRight, 4, 5, 0, Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveModuleConstants),
       SwerveModuleConfig(SwerveModuleLocation.RearLeft, 6, 7, 180, Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveModuleConstants),
@@ -89,10 +90,18 @@ class Subsystems:
 
 class Services:
   class Localization:
-    VISION_MAX_POSE_AMBIGUITY: units.percent = 0.2
-    VISION_MAX_ESTIMATED_POSE_DELTA: units.meters = 1.0
-    VISION_ESTIMATE_MULTI_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.05, 0.05, units.degreesToRadians(5.0))
-    VISION_ESTIMATE_SINGLE_TAG_STANDARD_DEVIATIONS: tuple[units.meters, units.meters, units.radians] = (0.3, 0.3, units.degreesToRadians(15.0))
+    MAX_TARGET_AMBIGUITY: units.percent = 0.2
+    MAX_TARGET_REPROJECTION_ERROR: float = 1.0
+    MAX_TARGET_DISTANCE: units.meters = 5.0
+    MAX_POSE_CHANGE: units.meters = 1.0
+    STDDEV_XY_COEFF: float = 0.08
+    STDDEV_Z_COEFF: float = 0.1
+    STDDEV_TARGET_AMBIGUITY_SCALE_FACTOR: float = 5.0
+    STDDEV_TARGET_REPROJECTION_ERROR_SCALE_FACTOR: float = 2.5
+    VALID_POSE_SENSOR_RESULT_TIMEOUT: units.seconds = 0.3
+
+  class Targeting:
+    pass
 
 class Sensors: 
   class Gyro:
@@ -101,27 +110,15 @@ class Sensors:
   
   class Pose:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
-      PoseSensorConfig(
-        name = "Front",
-        transform = Transform3d(
-          Translation3d(x = units.inchesToMeters(4.25), y = units.inchesToMeters(-1.77), z = units.inchesToMeters(9.47)), 
-          Rotation3d(roll = units.degreesToRadians(-0.18), pitch = units.degreesToRadians(-32.77), yaw = units.degreesToRadians(-0.18))
-        ),
-        stream = "http://10.28.81.6:1182/?action=stream", 
-        aprilTagFieldLayout = _aprilTagFieldLayout
-      ),
-    )
-
-  class Object:
-    # TODO: configure real values for installed camera
-    OBJECT_SENSOR_CONFIG = ObjectSensorConfig(
-      name = "Fuel", 
-      transform = Transform3d(
-        Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)), 
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(25.0), units.degreesToRadians(0))
-      ),
-      stream = "http://10.28.81.6:1186/?action=stream",
-      objectHeight = units.inchesToMeters(5.71)
+      # PoseSensorConfig(
+      #   name = "Front",
+      #   transform = Transform3d(
+      #     Translation3d(x = units.inchesToMeters(4.25), y = units.inchesToMeters(-1.77), z = units.inchesToMeters(9.47)), 
+      #     Rotation3d(roll = units.degreesToRadians(-0.18), pitch = units.degreesToRadians(-32.77), yaw = units.degreesToRadians(-0.18))
+      #   ),
+      #   stream = "http://10.28.81.6:1182/?action=stream", 
+      #   aprilTagFieldLayout = _aprilTagFieldLayout
+      # ),
     )
 
 class Cameras:
@@ -135,39 +132,46 @@ class Controllers:
 class Game:
   class Robot:
     TYPE = RobotType.Practice
-    NAME: str = "MiniBot"
+    NAME: str = "MiniBot (Black)"
 
   class Commands:
-    AUTO_ALIGNMENT_TIMEOUT: units.seconds = 1.5
+    pass
 
   class Field:
     LENGTH = _aprilTagFieldLayout.getFieldLength()
     WIDTH = _aprilTagFieldLayout.getFieldWidth()
-    BOUNDS = (Translation2d(0, 0), Translation2d(LENGTH, WIDTH))
+    ZONE = Zone(start = Translation2d(0, 0), end = Translation2d(LENGTH, WIDTH))
 
     class Targets:
-      # TODO: properly configure and tune all target poses (rough/temp placeholders for now)
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
-        Alliance.Red: {
-          Target.Hub: Pose3d(11.918, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.CornerLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(90))),
-          Target.CornerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
-          Target.TowerLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.TowerRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.TrenchLeft: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(90))),
-          Target.TrenchRight: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
-          Target.Outpost: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.Depot: Pose3d(14.000, 4.032, 0, Rotation3d(Rotation2d.fromDegrees(-90)))
-        },
         Alliance.Blue: {
-          Target.Hub: Pose3d(4.623, 4.032, 1.263, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.CornerLeft: Pose3d(0.280, 7.790, 0, Rotation3d(Rotation2d.fromDegrees(-45))),
-          Target.CornerRight: Pose3d(0.280, 0.280, 0, Rotation3d(Rotation2d.fromDegrees(45))),
-          Target.TowerLeft: Pose3d(1.370, 4.180, 0, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.TowerRight: Pose3d(1.370, 3.320, 0, Rotation3d(Rotation2d.fromDegrees(180))),
-          Target.TrenchLeft: Pose3d(3.664, 6.535, 0, Rotation3d(Rotation2d.fromDegrees(-90))),
-          Target.TrenchRight: Pose3d(3.664, 1.600, 0, Rotation3d(Rotation2d.fromDegrees(90))),
-          Target.Outpost: Pose3d(0.280, 0.650, 0, Rotation3d(Rotation2d.fromDegrees(0))),
-          Target.Depot: Pose3d(0.350, 5.125, 0, Rotation3d(Rotation2d.fromDegrees(0)))
-        }
+          Target.Hub: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0))), 
+          Target.ShuttleLeft: Pose3d(3.0, 5.25, 0, Rotation3d(Rotation2d.fromDegrees(180.0))),
+          Target.ShuttleRight: Pose3d(3.0, 3.0, 0, Rotation3d(Rotation2d.fromDegrees(180.0))), 
+          Target.BumpLeftInOut: Pose3d(2.800, 5.700, 0, Rotation3d(Rotation2d.fromDegrees(-135.0))),
+          Target.BumpLeftOutIn: Pose3d(6.400, 5.400, 0, Rotation3d(Rotation2d.fromDegrees(45.0))),
+          Target.BumpRightInOut: Pose3d(2.800, 2.700, 0, Rotation3d(Rotation2d.fromDegrees(-135.0))),
+          Target.BumpRightOutIn: Pose3d(6.400, 2.400, 0, Rotation3d(Rotation2d.fromDegrees(45.0))),
+        },
+        Alliance.Red: {}
       }
+
+      for target in TARGETS[Alliance.Blue]:
+        pose = FlippingUtil.flipFieldPose(TARGETS[Alliance.Blue][target].toPose2d())
+        TARGETS[Alliance.Red][target] = Pose3d(pose.X(), pose.Y(), TARGETS[Alliance.Blue][target].Z(), Rotation3d(pose.rotation()))
+
+      TARGET_ZONES: dict[Alliance, dict[Target, Zone]] = {
+        Alliance.Blue: {
+          Target.Hub: Zone(start = Translation2d(0.0, 0.0), end = Translation2d(4.4, 8.0)),
+          Target.ShuttleLeft: Zone(start = Translation2d(5.6, 5.5), end = Translation2d(16.5, 8.0)),
+          Target.ShuttleRight: Zone(start = Translation2d(5.6, 0.0), end = Translation2d(16.5, 2.6))
+        },
+        Alliance.Red: {}
+      }
+
+      for target in TARGET_ZONES[Alliance.Blue]:
+        zone = TARGET_ZONES[Alliance.Blue][target]
+        TARGET_ZONES[Alliance.Red][target] = Zone(
+          FlippingUtil.flipFieldPose(Pose2d(zone.end.X(), zone.end.Y(), Rotation2d())).translation(), 
+          FlippingUtil.flipFieldPose(Pose2d(zone.start.X(), zone.start.Y(), Rotation2d())).translation()
+        )

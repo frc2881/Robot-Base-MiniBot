@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from commands2 import Command, cmd
 from wpilib import RobotBase
+from wpimath import units
 from lib import logger, utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern
 from core.classes import Target
@@ -10,26 +11,31 @@ if TYPE_CHECKING: from core.robot import RobotCore
 class Game:
   def __init__(self, robot: "RobotCore") -> None:
     self._robot = robot
-
-  def alignRobotToTargetPose(self, target: Target) -> Command:
+    
+  def alignRobotToTargetPose(self, target: Target, alignRotationOnly: bool = False) -> Command:
     return (
-      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target).toPose2d())
+      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.targeting.getTargetPose(target), alignRotationOnly)
       .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
       .withName(f'Game:AlignRobotToTargetPose:{ target.name }')
     )
-  
+
+  def alignRobotToNearestTargetPose(self, targets: list[Target], alignRotationOnly: bool = False) -> Command:
+    return (
+      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, lambda: self._robot.targeting.getNearestTargetPose(targets), alignRotationOnly)
+      .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
+      .withName("Game:AlignRobotToNearestTargetPose")
+    )
+
   def alignRobotToTargetHeading(self, target: Target) -> Command:
     return (
-      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotPose, lambda: self._robot.localization.getTargetPose(target).toPose2d())
+      self._robot.drive.alignToTargetHeading(self._robot.localization.getRobotPose, lambda: self._robot.targeting.getTargetPose(target))
       .withName(f'Game:AlignRobotToTargetHeading:{ target.name }')
     )
-  
-  def alignRobotToNearestFuel(self) -> Command:
+
+  def alignRobotToNearestBump(self) -> Command:
     return (
-      self._robot.drive.alignToTargetPose(self._robot.localization.getRobotPose, self._robot.localization.getObjectsPose)
-      .andThen(self.rumbleControllers(ControllerRumbleMode.Driver))
-      .onlyIf(lambda: self._robot.localization.getObjectsCount() >= 5) # TODO: make a constant for and validate minimum fuel count to target if we use this feature on the robot
-      .withName(f'Game:AlignRobotToNearestFuel')
+      self.alignRobotToNearestTargetPose([Target.BumpLeftInOut, Target.BumpLeftOutIn, Target.BumpRightInOut, Target.BumpRightOutIn])
+      .withName("Game:AlignRobotToNearestBump")
     )
 
   def rumbleControllers(

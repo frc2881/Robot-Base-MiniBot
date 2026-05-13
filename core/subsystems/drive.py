@@ -1,16 +1,16 @@
-from typing import Callable
+from typing import Callable, Optional
 from commands2 import Subsystem, Command, cmd
 from wpilib import SmartDashboard, SendableChooser
 from wpimath import units
 from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
 from wpimath.trajectory import TrapezoidProfileRadians
 from wpimath.filter import SlewRateLimiter
-from wpimath.geometry import Rotation2d, Pose2d
+from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from ntcore import NetworkTableInstance
 from pathplannerlib.util import DriveFeedforwards
 from lib import logger, utils
-from lib.classes import State, Position, MotorIdleMode, SpeedMode, DriveOrientation
+from lib.classes import State, Position, MotorIdleMode, SpeedMode, DriveOrientation, SwerveModuleLocation
 from lib.components.swerve_module import SwerveModule
 import core.constants as constants
 
@@ -24,7 +24,12 @@ class Drive(Subsystem):
     
     self._constants = constants.Subsystems.Drive
 
-    self._modules = tuple(SwerveModule(c) for c in self._constants.SWERVE_MODULE_CONFIGS)
+    self._modules = (
+      SwerveModule(self._constants.SWERVE_MODULE_CONFIGS[SwerveModuleLocation.FrontLeft]),
+      SwerveModule(self._constants.SWERVE_MODULE_CONFIGS[SwerveModuleLocation.FrontRight]),
+      SwerveModule(self._constants.SWERVE_MODULE_CONFIGS[SwerveModuleLocation.RearLeft]),
+      SwerveModule(self._constants.SWERVE_MODULE_CONFIGS[SwerveModuleLocation.RearRight])
+    )
     self._modulesStatesPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SmartDashboard/Robot/Drive/Modules/States", SwerveModuleState).publish()
     self._modulesLockPosition = Position.Unlocked
 
@@ -39,6 +44,7 @@ class Drive(Subsystem):
     self._targetHeadingAlignmentController.enableContinuousInput(-180.0, 180.0)
     self._targetHeadingAlignmentRotationInput: units.percent = 0
 
+    self._targetPose: Optional[Pose2d] = None
     self._targetPoseAlignmentState = State.Stopped
     self._targetPoseAlignmentController = HolonomicDriveController(
       PIDController(*self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationPID),
@@ -113,7 +119,7 @@ class Drive(Subsystem):
           rotationInput = self._driftCorrectionController.calculate(self._getGyroHeading())
           if self._driftCorrectionController.atSetpoint():
             rotationInput = 0
-
+  
     if self._speedMode == SpeedMode.Demo:
       translationXInput = self._translationXInputLimiter.calculate(translationXInput * self._constants.INPUT_LIMIT_DEMO) if translationXInput != 0 else 0
       translationYInput = self._translationYInputLimiter.calculate(translationYInput * self._constants.INPUT_LIMIT_DEMO) if translationYInput != 0 else 0
@@ -129,14 +135,19 @@ class Drive(Subsystem):
       ChassisSpeeds(translationXVelocity, translationYVelocity, units.degreesToRadians(rotationVelocity))
     )
 
-  def setChassisSpeeds(self, chassisSpeeds: ChassisSpeeds, driveFeedforwards: DriveFeedforwards = None) -> None:
+  def setChassisSpeeds(self, chassisSpeeds: ChassisSpeeds, driveFeedforwards: Optional[DriveFeedforwards] = None) -> None:
     self._setModuleStates(chassisSpeeds)
 
   def getChassisSpeeds(self) -> ChassisSpeeds:
     return self._constants.DRIVE_KINEMATICS.toChassisSpeeds(self._getModuleStates())
 
-  def getModulePositions(self) -> tuple[SwerveModulePosition, ...]:
-    return tuple(module.getPosition() for module in self._modules)
+  def getModulePositions(self) -> tuple[SwerveModulePosition, SwerveModulePosition, SwerveModulePosition, SwerveModulePosition]:
+    return (
+      self._modules[SwerveModuleLocation.FrontLeft].getPosition(), 
+      self._modules[SwerveModuleLocation.FrontRight].getPosition(), 
+      self._modules[SwerveModuleLocation.RearLeft].getPosition(), 
+      self._modules[SwerveModuleLocation.RearRight].getPosition()
+    )
 
   def _setModuleStates(self, chassisSpeeds: ChassisSpeeds) -> None: 
     swerveModuleStates = SwerveDrive4Kinematics.desaturateWheelSpeeds(
@@ -157,8 +168,13 @@ class Drive(Subsystem):
       if chassisSpeeds.vx != 0 or chassisSpeeds.vy != 0 or chassisSpeeds.omega != 0:
         self._targetPoseAlignmentState = State.Stopped
 
-  def _getModuleStates(self) -> tuple[SwerveModuleState, ...]:
-    return tuple(module.getState() for module in self._modules)
+  def _getModuleStates(self) -> tuple[SwerveModuleState, SwerveModuleState, SwerveModuleState, SwerveModuleState]:
+    return (
+      self._modules[SwerveModuleLocation.FrontLeft].getState(), 
+      self._modules[SwerveModuleLocation.FrontRight].getState(), 
+      self._modules[SwerveModuleLocation.RearLeft].getState(), 
+      self._modules[SwerveModuleLocation.RearRight].getState()
+    )
 
   def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
     for module in self._modules: module.setIdleMode(idleMode)
@@ -182,28 +198,30 @@ class Drive(Subsystem):
       for index, module in enumerate(self._modules): 
         module.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45 if index in { 0, 3 } else -45)))
 
-  def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose2d]) -> Command:
+  def alignToTargetPose(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d], alignRotationOnly: bool = False) -> Command:
     return self.startRun(
-      lambda: self._initTargetPoseAlignment(),
-      lambda: self._runTargetPoseAlignment(getRobotPose(), getTargetPose())
+      lambda: self._initTargetPoseAlignment(getTargetPose(), getRobotPose(), alignRotationOnly),
+      lambda: self._runTargetPoseAlignment(getRobotPose())
     ).until(
       lambda: self._targetPoseAlignmentState == State.Completed
     ).finallyDo(
       lambda end: self._endTargetPoseAlignment()
     )
   
-  def _initTargetPoseAlignment(self) -> None:
+  def _initTargetPoseAlignment(self, targetPose: Pose3d, robotPose: Pose2d, alignRotationOnly: bool) -> None:
+    self._targetPose = Pose2d(robotPose.translation(), targetPose.toPose2d().rotation()) if alignRotationOnly else targetPose.toPose2d()
     self._targetPoseAlignmentState = State.Running
 
-  def _runTargetPoseAlignment(self, robotPose: Pose2d, targetPose: Pose2d) -> None:
-    self._setModuleStates(
-      utils.clampTranslationVelocity(
-        self._targetPoseAlignmentController.calculate(robotPose, targetPose, 0, targetPose.rotation()), 
-        self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity
+  def _runTargetPoseAlignment(self, robotPose: Pose2d) -> None:
+    if self._targetPose is not None:
+      self._setModuleStates(
+        utils.clampTranslationVelocity(
+          self._targetPoseAlignmentController.calculate(robotPose, self._targetPose, 0, self._targetPose.rotation()), 
+          self._constants.TARGET_POSE_ALIGNMENT_CONSTANTS.translationMaxVelocity
+        )
       )
-    )
-    if self._targetPoseAlignmentController.atReference():
-      self._targetPoseAlignmentState = State.Completed
+      if self._targetPoseAlignmentController.atReference():
+        self._targetPoseAlignmentState = State.Completed
 
   def _endTargetPoseAlignment(self) -> None:
     self._setModuleStates(ChassisSpeeds())
@@ -213,21 +231,23 @@ class Drive(Subsystem):
   def isAlignedToTargetPose(self) -> bool:
     return self._targetPoseAlignmentState == State.Completed
 
-  def alignToTargetHeading(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose2d]) -> Command:
+  def alignToTargetHeading(self, getRobotPose: Callable[[], Pose2d], getTargetPose: Callable[[], Pose3d]) -> Command:
     return cmd.startRun(
-      lambda: self._initTargetHeadingAlignment(),
-      lambda: self._runTargetHeadingAlignment(getRobotPose(), getTargetPose())
+      lambda: self._initTargetHeadingAlignment(getTargetPose()),
+      lambda: self._runTargetHeadingAlignment(getRobotPose())
     ).finallyDo(
       lambda end: self._endTargetHeadingAlignment()
     )
 
-  def _initTargetHeadingAlignment(self) -> None:
+  def _initTargetHeadingAlignment(self, targetPose: Pose3d) -> None:
+    self._targetPose = targetPose.toPose2d()
     self._targetHeadingAlignmentController.reset()
     self._targetHeadingAlignmentState = State.Running
 
-  def _runTargetHeadingAlignment(self, robotPose: Pose2d, targetPose: Pose2d) -> None:
-    self._targetHeadingAlignmentController.setSetpoint(utils.getTargetHeading(robotPose, targetPose))
-    self._targetHeadingAlignmentRotationInput = self._targetHeadingAlignmentController.calculate(robotPose.rotation().degrees()) if not self._targetHeadingAlignmentController.atSetpoint() else 0
+  def _runTargetHeadingAlignment(self, robotPose: Pose2d) -> None:
+    if self._targetPose is not None:
+      self._targetHeadingAlignmentController.setSetpoint(utils.wrapAngle(utils.getTargetHeading(robotPose, self._targetPose)))
+      self._targetHeadingAlignmentRotationInput = self._targetHeadingAlignmentController.calculate(robotPose.rotation().degrees()) if not self._targetHeadingAlignmentController.atSetpoint() else 0
 
   def _endTargetHeadingAlignment(self) -> None:
     self._targetHeadingAlignmentState = State.Stopped
@@ -238,12 +258,13 @@ class Drive(Subsystem):
   
   def reset(self) -> None:
     self.setChassisSpeeds(ChassisSpeeds())
-    self._driftCorrectionState == State.Stopped
+    self._driftCorrectionState = State.Stopped
     self._targetPoseAlignmentState = State.Stopped
-    self._targetHeadingAlignmentState == State.Stopped
+    self._targetHeadingAlignmentState = State.Stopped
+    self._targetPose = None
 
   def _updateTelemetry(self) -> None:
-    self._modulesStatesPublisher.set(self._getModuleStates())
+    self._modulesStatesPublisher.set(list(self._getModuleStates()))
     SmartDashboard.putString("Robot/Drive/TargetPoseAlignmentState", self._targetPoseAlignmentState.name)
     SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTargetPose", self.isAlignedToTargetPose())
     SmartDashboard.putString("Robot/Drive/TargetHeadingAlignmentState", self._targetHeadingAlignmentState.name)

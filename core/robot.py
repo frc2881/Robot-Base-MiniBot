@@ -3,11 +3,11 @@ from lib import logger, utils
 from lib.controllers.xbox import XboxController
 from lib.sensors.gyro_navx2 import Gyro_NAVX2
 from lib.sensors.pose import PoseSensor
-from lib.sensors.object import ObjectSensor
 from core.commands.auto import Auto
 from core.commands.game import Game
 from core.subsystems.drive import Drive
 from core.services.localization import Localization
+from core.services.targeting import Targeting
 from core.services.match import Match
 from core.classes import Target
 import core.constants as constants
@@ -26,14 +26,14 @@ class RobotCore:
   def _initSensors(self) -> None:
     self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX2.COM_TYPE)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS)
-    self.objectSensor = ObjectSensor(constants.Sensors.Object.OBJECT_SENSOR_CONFIG)
 
   def _initSubsystems(self) -> None:
-    self.drive = Drive(self.gyro.getHeading)
+    self.drive = Drive(lambda: self.gyro.getHeading())
     
   def _initServices(self) -> None:
-    self.localization = Localization(self.gyro.getHeading, self.drive.getModulePositions, self.poseSensors, self.objectSensor)
-    self.match = Match()  
+    self.localization = Localization(lambda: self.gyro.getHeading(), lambda: self.drive.getModulePositions(), self.poseSensors)
+    self.targeting = Targeting(lambda: self.localization.getRobotPose(), lambda: self.drive.getChassisSpeeds())
+    self.match = Match()
 
   def _initCommands(self) -> None:
     self.game = Game(self)
@@ -51,19 +51,19 @@ class RobotCore:
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
-    self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
+    # self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    self.driver.leftBumper().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchLeft))
-    self.driver.rightBumper().whileTrue(self.game.alignRobotToTargetPose(Target.TrenchRight))
+    # self.driver.leftBumper().whileTrue(cmd.none())
+    # self.driver.rightBumper().whileTrue(self.game.alignRobotToNearestBump())
+    # self.driver.a().whileTrue(cmd.none())
+    # self.driver.b().whileTrue(cmd.none())
+    # self.driver.y().whileTrue(cmd.none())
+    # self.driver.x().whileTrue(cmd.none())
+    # self.driver.povLeft().whileTrue(cmd.none())
+    # self.driver.povRight().whileTrue(cmd.none())
     # self.driver.povUp().whileTrue(cmd.none())
     # self.driver.povDown().whileTrue(cmd.none())
-    self.driver.povLeft().whileTrue(self.game.alignRobotToTargetPose(Target.TowerLeft))
-    self.driver.povRight().whileTrue(self.game.alignRobotToTargetPose(Target.TowerRight))
-    self.driver.a().whileTrue(self.game.alignRobotToNearestFuel())
-    self.driver.b().whileTrue(self.game.alignRobotToTargetPose(Target.CornerRight))
-    # self.driver.y().whileTrue(cmd.none())
-    self.driver.x().whileTrue(self.game.alignRobotToTargetPose(Target.CornerLeft))
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().debounce(0.5).whileTrue(self.gyro.reset().ignoringDisable(True))
 
@@ -92,7 +92,7 @@ class RobotCore:
     SmartDashboard.putNumber("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
     SmartDashboard.putNumber("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
     SmartDashboard.putString("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
-    SmartDashboard.putStringArray("Robot/Sensors/Pose/Names", tuple(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
+    SmartDashboard.putStringArray("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
 
   def _periodic(self) -> None:
     self._updateTelemetry()
@@ -118,8 +118,12 @@ class RobotCore:
   def reset(self) -> None:
     self.drive.reset()
 
+  def isHoming(self) -> bool:
+    return False
+
   def isHomed(self) -> bool:
     return True
       
   def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean("Robot/Status/IsHoming", self.isHoming())
     SmartDashboard.putBoolean("Robot/Status/IsHomed", self.isHomed())

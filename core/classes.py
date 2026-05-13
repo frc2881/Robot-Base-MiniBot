@@ -1,15 +1,15 @@
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
+from dataclasses import dataclass
+from wpimath import units
 
 class Target(Enum):
   Hub = auto()
-  TowerLeft = auto()
-  TowerRight = auto()
-  TrenchLeft = auto()
-  TrenchRight = auto()
-  CornerLeft = auto()
-  CornerRight = auto()
-  Outpost = auto()
-  Depot = auto()
+  ShuttleLeft = auto()
+  ShuttleRight = auto()
+  BumpLeftInOut = auto()
+  BumpLeftOutIn = auto()
+  BumpRightInOut = auto()
+  BumpRightOutIn = auto()
 
 class MatchState(Enum):
   Stopped = auto()
@@ -29,5 +29,5 @@ class LightsMode(Enum):
   Default = auto()
   RobotNotConnected = auto()
   RobotNotHomed = auto()
+  RobotIsHoming = auto()
   VisionNotReady = auto()
-  LaunchReady = auto()
