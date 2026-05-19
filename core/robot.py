@@ -53,8 +53,8 @@ class RobotCore:
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
     # self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
     # self.driver.leftTrigger().whileTrue(cmd.none())
-    # self.driver.rightTrigger().whileTrue(cmd.none())
     # self.driver.leftBumper().whileTrue(cmd.none())
+    # self.driver.rightTrigger().whileTrue(cmd.none())
     # self.driver.rightBumper().whileTrue(self.game.alignRobotToNearestBump())
     # self.driver.a().whileTrue(cmd.none())
     # self.driver.b().whileTrue(cmd.none())
@@ -70,8 +70,8 @@ class RobotCore:
   def _setupOperator(self) -> None:
     pass
     # self.operator.leftTrigger().whileTrue(cmd.none())
-    # self.operator.rightTrigger().whileTrue(cmd.none())
     # self.operator.leftBumper().whileTrue(cmd.none())
+    # self.operator.rightTrigger().whileTrue(cmd.none())
     # self.operator.rightBumper().whileTrue(cmd.none())
     # self.operator.povUp().whileTrue(cmd.none())
     # self.operator.povRight().whileTrue(cmd.none())
