@@ -65,7 +65,7 @@ class RobotCore:
     # self.driver.povUp().whileTrue(cmd.none())
     # self.driver.povDown().whileTrue(cmd.none())
     # self.driver.start().whileTrue(cmd.none())
-    self.driver.back().debounce(0.5).whileTrue(self.gyro.reset().ignoringDisable(True))
+    self.driver.back().debounce(0.5).whileTrue(self.game.resetGyro())
 
   def _setupOperator(self) -> None:
     pass
