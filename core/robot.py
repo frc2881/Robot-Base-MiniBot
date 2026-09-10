@@ -125,7 +125,7 @@ class RobotCore:
 
   def isHomed(self) -> bool:
     return True
-      
+
   def _updateTelemetry(self) -> None:
     SmartDashboard.putBoolean("Robot/Status/IsHoming", self.isHoming())
     SmartDashboard.putBoolean("Robot/Status/IsHomed", self.isHomed())

@@ -65,5 +65,5 @@ class Auto:
 
   def auto_CUSTOM(self) -> Command:
     return cmd.sequence(
-      self._move(AutoPath.CUSTOM).deadlineFor()
+      self._move(AutoPath.CUSTOM)
     ).withName("Auto:CUSTOM")
