@@ -51,11 +51,11 @@ class RobotCore:
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
-    # self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
+    self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.leftBumper().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
-    # self.driver.rightBumper().whileTrue(self.game.alignRobotToNearestBump())
+    # self.driver.rightBumper().whileTrue(cmd.none())
     # self.driver.a().whileTrue(cmd.none())
     # self.driver.b().whileTrue(cmd.none())
     # self.driver.y().whileTrue(cmd.none())
@@ -68,21 +68,23 @@ class RobotCore:
     self.driver.back().debounce(0.5).whileTrue(self.game.resetGyro())
 
   def _setupOperator(self) -> None:
-    pass
+    # self.operator.leftStick().whileTrue(cmd.none())
+    # self.operator.rightStick().whileTrue(cmd.none())
     # self.operator.leftTrigger().whileTrue(cmd.none())
     # self.operator.leftBumper().whileTrue(cmd.none())
     # self.operator.rightTrigger().whileTrue(cmd.none())
     # self.operator.rightBumper().whileTrue(cmd.none())
-    # self.operator.povUp().whileTrue(cmd.none())
-    # self.operator.povRight().whileTrue(cmd.none())
-    # self.operator.povDown().whileTrue(cmd.none())
-    # self.operator.povLeft().whileTrue(cmd.none())
     # self.operator.a().whileTrue(cmd.none())
     # self.operator.b().whileTrue(cmd.none())
     # self.operator.y().whileTrue(cmd.none())
     # self.operator.x().whileTrue(cmd.none())
+    # self.operator.povLeft().whileTrue(cmd.none())
+    # self.operator.povRight().whileTrue(cmd.none())
+    # self.operator.povUp().whileTrue(cmd.none())
+    # self.operator.povDown().whileTrue(cmd.none())
     # self.operator.start().whileTrue(cmd.none())
     # self.operator.back().whileTrue(cmd.none())
+    pass
 
   def _initTelemetry(self) -> None:
     SmartDashboard.putString("Game/Robot/Type", constants.Game.Robot.TYPE.name)

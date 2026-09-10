@@ -32,12 +32,6 @@ class Game:
       .withName(f'Game:AlignRobotToTargetHeading:{ target.name }')
     )
 
-  def alignRobotToNearestBump(self) -> Command:
-    return (
-      self.alignRobotToNearestTargetPose([Target.BumpLeftInOut, Target.BumpLeftOutIn, Target.BumpRightInOut, Target.BumpRightOutIn])
-      .withName("Game:AlignRobotToNearestBump")
-    )
-  
   def resetGyro(self) -> Command:
     return (
       self._robot.gyro.reset()

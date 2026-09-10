@@ -145,13 +145,7 @@ class Game:
     class Targets:
       TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
         Alliance.Blue: {
-          Target.Hub: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0))), 
-          Target.ShuttleLeft: Pose3d(3.0, 5.25, 0, Rotation3d(Rotation2d.fromDegrees(180.0))),
-          Target.ShuttleRight: Pose3d(3.0, 3.0, 0, Rotation3d(Rotation2d.fromDegrees(180.0))), 
-          Target.BumpLeftInOut: Pose3d(2.800, 5.700, 0, Rotation3d(Rotation2d.fromDegrees(-135.0))),
-          Target.BumpLeftOutIn: Pose3d(6.400, 5.400, 0, Rotation3d(Rotation2d.fromDegrees(45.0))),
-          Target.BumpRightInOut: Pose3d(2.800, 2.700, 0, Rotation3d(Rotation2d.fromDegrees(-135.0))),
-          Target.BumpRightOutIn: Pose3d(6.400, 2.400, 0, Rotation3d(Rotation2d.fromDegrees(45.0))),
+          Target.Hub: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0)))
         },
         Alliance.Red: {}
       }
@@ -162,9 +156,7 @@ class Game:
 
       TARGET_ZONES: dict[Alliance, dict[Target, Zone]] = {
         Alliance.Blue: {
-          Target.Hub: Zone(start = Translation2d(0.0, 0.0), end = Translation2d(4.4, 8.0)),
-          Target.ShuttleLeft: Zone(start = Translation2d(5.6, 5.5), end = Translation2d(16.5, 8.0)),
-          Target.ShuttleRight: Zone(start = Translation2d(5.6, 0.0), end = Translation2d(16.5, 2.6))
+          Target.Hub: Zone(start = Translation2d(0.0, 0.0), end = Translation2d(4.4, 8.0))
         },
         Alliance.Red: {}
       }
