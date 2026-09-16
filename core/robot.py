@@ -24,7 +24,7 @@ class RobotCore:
     utils.addRobotPeriodic(self._periodic)
 
   def _initSensors(self) -> None:
-    self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX2.COM_TYPE)
+    self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX_PORT)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS)
 
   def _initSubsystems(self) -> None:
