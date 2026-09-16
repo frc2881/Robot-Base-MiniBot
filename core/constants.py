@@ -3,7 +3,7 @@ from wpimath import units
 from wpimath.geometry import Pose2d, Pose3d, Rotation3d, Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
-from navx import AHRS
+import navx
 from rev import SparkLowLevel, AbsoluteEncoderConfig
 from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
@@ -105,7 +105,7 @@ class Services:
 
 class Sensors: 
   class Gyro:
-    NAVX_PORT = AHRS.NavXComType.kMXP_SPI
+    NAVX_PORT = navx.AHRS.NavXComType.kMXP_SPI
   
   class Pose:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (

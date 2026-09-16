@@ -1,7 +1,7 @@
 from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
 from lib.controllers.xbox import XboxController
-from lib.sensors.gyro_navx2 import Gyro_NAVX2
+from lib.sensors.gyro_navx2 import Gyro
 from lib.sensors.pose import PoseSensor
 from core.commands.auto import Auto
 from core.commands.game import Game
@@ -24,7 +24,7 @@ class RobotCore:
     utils.addRobotPeriodic(self._periodic)
 
   def _initSensors(self) -> None:
-    self.gyro = Gyro_NAVX2(constants.Sensors.Gyro.NAVX_PORT)
+    self.gyro = Gyro(constants.Sensors.Gyro.NAVX_PORT)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS)
 
   def _initSubsystems(self) -> None:
