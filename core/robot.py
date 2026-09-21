@@ -32,7 +32,7 @@ class RobotCore:
     
   def _initServices(self) -> None:
     self.localization = Localization(lambda: self.gyro.getHeading(), lambda: self.drive.getModulePositions(), self.poseSensors)
-    self.targeting = Targeting(lambda: self.localization.getRobotPose(), lambda: self.drive.getChassisSpeeds())
+    self.targeting = Targeting(lambda: self.localization.getRobotPose(), lambda: self.localization.getRobotZone(), lambda: self.drive.getChassisSpeeds())
     self.match = Match()
 
   def _initCommands(self) -> None:
@@ -51,7 +51,7 @@ class RobotCore:
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
     self.driver.leftStick().whileTrue(self.drive.lockSwerveModules())
-    self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Hub))
+    self.driver.rightStick().whileTrue(self.game.alignRobotToTargetHeading(Target.Default))
     # self.driver.leftTrigger().whileTrue(cmd.none())
     # self.driver.rightTrigger().whileTrue(cmd.none())
     # self.driver.leftBumper().whileTrue(cmd.none())

@@ -2,23 +2,24 @@ from typing import TYPE_CHECKING, Callable, Optional
 from wpimath.geometry import Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds
 from lib import logger, utils
-from lib.classes import Alliance, Zone
-from core.classes import Target
+from lib.classes import Alliance
+from core.classes import Target, Zone
 import core.constants as constants
 
 class Targeting():
   def __init__(
       self,
       getRobotPose: Callable[[], Pose2d],
+      getRobotZone: Callable[[], Optional[Zone]],
       getChassisSpeeds: Callable[[], ChassisSpeeds]
     ) -> None:
     self._constants = constants.Services.Targeting
     self._getRobotPose = getRobotPose
+    self._getRobotZone = getRobotZone
     self._getChassisSpeeds = getChassisSpeeds
 
     self._alliance: Optional[Alliance] = None
     self._targets: dict[Target, Pose3d] = {}
-    self._targetZones: dict[Target, Zone] = {}
 
     utils.addRobotPeriodic(self._periodic)
 
@@ -29,8 +30,7 @@ class Targeting():
   def _updateTargets(self) -> None:
     if utils.getAlliance() != self._alliance:
       self._alliance = utils.getAlliance()
-      self._targets = constants.Game.Field.Targets.TARGETS[self._alliance]
-      self._targetZones = constants.Game.Field.Targets.TARGET_ZONES[self._alliance]
+      self._targets = constants.Game.Field.TARGETS[self._alliance]
 
   def getTargetPose(self, target: Target) -> Pose3d:
     return self._targets.get(target, Pose3d(self._getRobotPose()))

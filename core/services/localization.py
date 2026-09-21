@@ -1,13 +1,14 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Optional
 from wpilib import SmartDashboard, Timer
 from wpimath import units
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Rectangle2d
 if TYPE_CHECKING: from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
 from lib import logger, utils
-from lib.classes import RobotState, PoseSensorResult, PoseSensorResultType, Value
+from lib.classes import Alliance, RobotState, PoseSensorResult, PoseSensorResultType, Value
 if TYPE_CHECKING: from lib.sensors.pose import PoseSensor
+from core.classes import Zone
 import core.constants as constants
 
 class Localization():
@@ -34,10 +35,16 @@ class Localization():
     
     self._robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("/SmartDashboard/Robot/Localization/Pose", Pose2d).publish()
 
+    self._alliance: Optional[Alliance] = None
+    self._zones: dict[Zone, Rectangle2d] = {}
+    self._robotZone: Optional[Zone] = None
+
     utils.addRobotPeriodic(self._periodic)
 
   def _periodic(self) -> None:
     self._updateRobotPose()
+    self._updateZones()
+    self._updateRobotZone()
     self._updateTelemetry()
 
   def _updateRobotPose(self) -> None:
@@ -62,7 +69,7 @@ class Localization():
 
   def _isResultValid(self, poseSensorResult: PoseSensorResult) -> bool:
     return (         
-      utils.isPoseWithinZone(poseSensorResult.estimatedPose.toPose2d(), constants.Game.Field.ZONE) 
+      utils.isPoseWithinBounds(poseSensorResult.estimatedPose.toPose2d(), constants.Game.Field.BOUNDS) 
       and
       poseSensorResult.bestTargetDistance <= self._constants.MAX_TARGET_DISTANCE 
       and
@@ -103,6 +110,22 @@ class Localization():
   def hasValidPoseSensorResult(self) -> bool:
     return self._hasValidPoseSensorResult
 
+  def _updateZones(self) -> None:
+    if utils.getAlliance() != self._alliance:
+      self._alliance = utils.getAlliance()
+      self._zones = constants.Game.Field.ZONES[self._alliance]
+
+  def _updateRobotZone(self) -> None:
+    for zone in self._zones:
+      if utils.isPoseWithinBounds(self.getRobotPose(), self._zones[zone]):
+        self._robotZone = zone
+        return
+    self._robotZone = None
+
+  def getRobotZone(self) -> Optional[Zone]:
+    return self._robotZone
+
   def _updateTelemetry(self) -> None:
     self._robotPosePublisher.set(self.getRobotPose())
     SmartDashboard.putBoolean("Robot/Localization/HasValidPoseSensorResult", self.hasValidPoseSensorResult())
+    SmartDashboard.putString("Robot/Localization/Zone", self._robotZone.name if self._robotZone is not None else "")

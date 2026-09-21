@@ -7,11 +7,9 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints, GoalEndState
 from lib import logger, utils
 from lib.classes import Alliance
+from core.classes import AutoPath
 import core.constants as constants
 if TYPE_CHECKING: from core.robot import RobotCore
-
-class AutoPath(Enum):
-  CUSTOM = auto()
 
 class Auto:
   def __init__(self, robot: "RobotCore") -> None:
@@ -34,7 +32,7 @@ class Auto:
     self._autos = SendableChooser()
     self._autos.setDefaultOption("0: None", self.auto_NONE)
     
-    self._autos.addOption("1: Custom", self.auto_CUSTOM)
+    # self._autos.addOption("10: Custom", self.auto_CUSTOM)
 
     self._autos.onChange(lambda auto: self.set(auto()))
     SmartDashboard.putData("Robot/Auto", self._autos)
@@ -49,13 +47,13 @@ class Auto:
   def _getPath(self, path: AutoPath) -> PathPlannerPath:
     return self._paths.get(path, PathPlannerPath([], PathConstraints(0, 0, 0, 0), None, GoalEndState(0, Rotation2d())))
   
-  def _reset(self, path: AutoPath) -> Command:
+  def _resetRobot(self, path: AutoPath) -> Command:
     return (
       AutoBuilder.resetOdom(self._getPath(path).getPathPoses()[0].transformBy(Transform2d(0, 0, self._getPath(path).getInitialHeading())))
       .andThen(cmd.waitSeconds(0.1))
     ).deadlineFor(logger.log_("Auto:Reset"))
   
-  def _move(self, path: AutoPath) -> Command:
+  def followPath(self, path: AutoPath) -> Command:
     return (
       AutoBuilder.followPath(self._getPath(path))
     ).deadlineFor(logger.log_(f'Auto:Move:{path.name}'))
@@ -65,5 +63,5 @@ class Auto:
 
   def auto_CUSTOM(self) -> Command:
     return cmd.sequence(
-      self._move(AutoPath.CUSTOM)
+      self.followPath(AutoPath.CUSTOM)
     ).withName("Auto:CUSTOM")

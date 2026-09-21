@@ -1,6 +1,6 @@
 import wpilib
 from wpimath import units
-from wpimath.geometry import Pose2d, Pose3d, Rotation3d, Translation2d, Rotation2d
+from wpimath.geometry import Pose3d, Rotation3d, Translation2d, Rotation2d, Rectangle2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagFieldLayout
 import navx
@@ -13,7 +13,6 @@ from lib.classes import (
   RobotType,
   Alliance, 
   PID,
-  Zone,
   MotorModel,
   SwerveModuleGearKit,
   SwerveModuleConstants, 
@@ -23,7 +22,7 @@ from lib.classes import (
   HeadingAlignmentConstants,
   PoseSensorConfig
 )
-from core.classes import Target
+from core.classes import Target, Zone
 import lib.constants
 
 _aprilTagFieldLayout = AprilTagFieldLayout(f'{ wpilib.getDeployDirectory() }/localization/2026-rebuilt-andymark.json')
@@ -44,7 +43,7 @@ class Subsystems:
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[_drivingMotorModel],
       drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[_swerveModuleGearKit],
-      drivingMotorCurrentLimit = 80,
+      drivingMotorCurrentLimit = 60,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
       turningMotorPID = PID(1.0, 0, 0),
@@ -61,13 +60,13 @@ class Subsystems:
     DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
 
     TRANSLATION_MAX_VELOCITY: units.meters_per_second = lib.constants.Drive.SWERVE_MODULE_FREE_SPEEDS[_drivingMotorModel][_swerveModuleGearKit] * 0.5
-    ROTATION_MAX_VELOCITY: units.degrees_per_second = 540.0
+    ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
-      translationPID = PID(3.0, 0, 0),
-      translationMaxVelocity = 2.0,
+      translationPID = PID(4.0, 0, 0),
+      translationMaxVelocity = 2.4,
       translationPositionTolerance = 0.025,
-      rotationPID = PID(3.0, 0, 0),
+      rotationPID = PID(4.0, 0, 0),
       rotationMaxVelocity = 720.0,
       rotationPositionTolerance = 0.5
     )
@@ -139,30 +138,24 @@ class Game:
   class Field:
     LENGTH = _aprilTagFieldLayout.getFieldLength()
     WIDTH = _aprilTagFieldLayout.getFieldWidth()
-    ZONE = Zone(start = Translation2d(0, 0), end = Translation2d(LENGTH, WIDTH))
+    BOUNDS = Rectangle2d(Translation2d(0, 0), Translation2d(LENGTH, WIDTH))
 
-    class Targets:
-      TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
-        Alliance.Blue: {
-          Target.Hub: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0)))
-        },
-        Alliance.Red: {}
-      }
+    TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
+      Alliance.Blue: {
+        Target.Default: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0)))
+      },
+      Alliance.Red: {}
+    }
+    for target in TARGETS[Alliance.Blue]:
+      pose = FlippingUtil.flipFieldPose(TARGETS[Alliance.Blue][target].toPose2d())
+      TARGETS[Alliance.Red][target] = Pose3d(pose.X(), pose.Y(), TARGETS[Alliance.Blue][target].Z(), Rotation3d(pose.rotation()))
 
-      for target in TARGETS[Alliance.Blue]:
-        pose = FlippingUtil.flipFieldPose(TARGETS[Alliance.Blue][target].toPose2d())
-        TARGETS[Alliance.Red][target] = Pose3d(pose.X(), pose.Y(), TARGETS[Alliance.Blue][target].Z(), Rotation3d(pose.rotation()))
-
-      TARGET_ZONES: dict[Alliance, dict[Target, Zone]] = {
-        Alliance.Blue: {
-          Target.Hub: Zone(start = Translation2d(0.0, 0.0), end = Translation2d(4.4, 8.0))
-        },
-        Alliance.Red: {}
-      }
-
-      for target in TARGET_ZONES[Alliance.Blue]:
-        zone = TARGET_ZONES[Alliance.Blue][target]
-        TARGET_ZONES[Alliance.Red][target] = Zone(
-          FlippingUtil.flipFieldPose(Pose2d(zone.end.X(), zone.end.Y(), Rotation2d())).translation(), 
-          FlippingUtil.flipFieldPose(Pose2d(zone.start.X(), zone.start.Y(), Rotation2d())).translation()
-        )
+    ZONES: dict[Alliance, dict[Zone, Rectangle2d]] = {
+      Alliance.Blue: {
+        Zone.Default: Rectangle2d(Translation2d(0, 0), Translation2d(4.400, 4.022))
+      },
+      Alliance.Red: {}
+    }
+    for zone in ZONES[Alliance.Blue]:
+      rectangle = ZONES[Alliance.Blue][zone]
+      ZONES[Alliance.Red][zone] = Rectangle2d(FlippingUtil.flipFieldPose(rectangle.center()), rectangle.xwidth, rectangle.ywidth)

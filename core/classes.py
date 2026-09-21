@@ -1,8 +1,14 @@
 from enum import Enum, auto
 from dataclasses import dataclass
 
+class AutoPath(Enum):
+  CUSTOM = auto()
+
 class Target(Enum):
-  Hub = auto()
+  Default = auto()
+
+class Zone(Enum):
+  Default = auto()
 
 class MatchState(Enum):
   Stopped = auto()
