@@ -45,8 +45,7 @@ class Game:
     pattern: ControllerRumblePattern = ControllerRumblePattern.Short
   ) -> Command:
     return cmd.parallel(
-      self._robot.driver.rumble(pattern).onlyIf(lambda: mode != ControllerRumbleMode.Operator),
-      self._robot.operator.rumble(pattern).onlyIf(lambda: mode != ControllerRumbleMode.Driver)
+      self._robot.driver.rumble(pattern).onlyIf(lambda: mode != ControllerRumbleMode.Operator)
     ).onlyIf(
       lambda: RobotBase.isReal() and not utils.isAutonomousMode()
     ).withName(f'Game:RumbleControllers:{ mode.name }:{ pattern.name }')

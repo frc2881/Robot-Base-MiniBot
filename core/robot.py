@@ -42,11 +42,9 @@ class RobotCore:
   def _initControllers(self) -> None:
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
     self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
-    self.operator = XboxController(constants.Controllers.OPERATOR_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
     
   def _initTriggers(self) -> None:
     self._setupDriver()
-    self._setupOperator()
 
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
@@ -66,25 +64,6 @@ class RobotCore:
     # self.driver.povDown().whileTrue(cmd.none())
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().debounce(0.5).whileTrue(self.game.resetGyro())
-
-  def _setupOperator(self) -> None:
-    # self.operator.leftStick().whileTrue(cmd.none())
-    # self.operator.rightStick().whileTrue(cmd.none())
-    # self.operator.leftTrigger().whileTrue(cmd.none())
-    # self.operator.rightTrigger().whileTrue(cmd.none())
-    # self.operator.leftBumper().whileTrue(cmd.none())
-    # self.operator.rightBumper().whileTrue(cmd.none())
-    # self.operator.a().whileTrue(cmd.none())
-    # self.operator.b().whileTrue(cmd.none())
-    # self.operator.y().whileTrue(cmd.none())
-    # self.operator.x().whileTrue(cmd.none())
-    # self.operator.povLeft().whileTrue(cmd.none())
-    # self.operator.povRight().whileTrue(cmd.none())
-    # self.operator.povUp().whileTrue(cmd.none())
-    # self.operator.povDown().whileTrue(cmd.none())
-    # self.operator.start().whileTrue(cmd.none())
-    # self.operator.back().whileTrue(cmd.none())
-    pass
 
   def _initTelemetry(self) -> None:
     SmartDashboard.putString("Game/Robot/Type", constants.Game.Robot.TYPE.name)
