@@ -73,7 +73,7 @@ class RobotCore:
     telemetry.log("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
     telemetry.log("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
     telemetry.log("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
-    telemetry.log("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
+    telemetry.log("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS), element_type = str)
 
   def _periodic(self) -> None:
     self._updateTelemetry()
