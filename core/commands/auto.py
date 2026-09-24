@@ -5,7 +5,7 @@ from wpilib import SendableChooser, SmartDashboard
 from wpimath.geometry import Transform2d, Rotation2d
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints, GoalEndState
-from lib import logger, utils
+from lib import logger, telemetry, utils
 from lib.classes import Alliance
 from core.classes import AutoPath
 import core.constants as constants
@@ -42,7 +42,7 @@ class Auto:
   
   def set(self, auto: Command) -> None:
     self._auto = auto
-    SmartDashboard.putString("Robot/Auto/command", auto.getName().replace("Auto:", ""))
+    telemetry.log("Robot/Auto/command", auto.getName().replace("Auto:", ""))
 
   def _getPath(self, path: AutoPath) -> PathPlannerPath:
     return self._paths.get(path, PathPlannerPath([], PathConstraints(0, 0, 0, 0), None, GoalEndState(0, Rotation2d())))

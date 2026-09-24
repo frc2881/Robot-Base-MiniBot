@@ -9,7 +9,7 @@ from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from ntcore import NetworkTableInstance
 from pathplannerlib.util import DriveFeedforwards
-from lib import logger, utils
+from lib import logger, telemetry, utils
 from lib.classes import State, Position, MotorIdleMode, SpeedMode, DriveOrientation, SwerveModuleLocation
 from lib.components.swerve_module import SwerveModule
 import core.constants as constants
@@ -178,7 +178,7 @@ class Drive(Subsystem):
 
   def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
     for module in self._modules: module.setIdleMode(idleMode)
-    SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name)
+    telemetry.log("Robot/Drive/IdleMode/selected", idleMode.name)
 
   def holdCoastMode(self) -> Command:
     return self.startEnd(
@@ -265,8 +265,8 @@ class Drive(Subsystem):
 
   def _updateTelemetry(self) -> None:
     self._modulesStatesPublisher.set(list(self._getModuleStates()))
-    SmartDashboard.putString("Robot/Drive/TargetPoseAlignmentState", self._targetPoseAlignmentState.name)
-    SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTargetPose", self.isAlignedToTargetPose())
-    SmartDashboard.putString("Robot/Drive/TargetHeadingAlignmentState", self._targetHeadingAlignmentState.name)
-    SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTargetHeading", self.isAlignedToTargetHeading())
-    SmartDashboard.putString("Robot/Drive/Modules/LockPosition", self._modulesLockPosition.name)
+    telemetry.log("Robot/Drive/TargetPoseAlignmentState", self._targetPoseAlignmentState.name)
+    telemetry.log("Robot/Drive/IsAlignedToTargetPose", self.isAlignedToTargetPose())
+    telemetry.log("Robot/Drive/TargetHeadingAlignmentState", self._targetHeadingAlignmentState.name)
+    telemetry.log("Robot/Drive/IsAlignedToTargetHeading", self.isAlignedToTargetHeading())
+    telemetry.log("Robot/Drive/Modules/LockPosition", self._modulesLockPosition.name)

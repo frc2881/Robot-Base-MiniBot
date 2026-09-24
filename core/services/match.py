@@ -1,8 +1,7 @@
 import math
 from wpimath import units
-from wpilib import SmartDashboard
 from lib.classes import RobotState, RobotMode
-from lib import logger, utils
+from lib import logger, telemetry, utils
 from core.classes import MatchState
 
 class Match():
@@ -36,5 +35,5 @@ class Match():
     return self._matchStateTime
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putString("Match/State", self.getMatchState().name)
-    SmartDashboard.putNumber("Match/StateTime", math.floor(self.getMatchStateTime()))
+    telemetry.log("Match/State", self.getMatchState().name)
+    telemetry.log("Match/StateTime", math.floor(self.getMatchStateTime()))

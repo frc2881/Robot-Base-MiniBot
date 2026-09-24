@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, Callable, Optional
-from wpilib import SmartDashboard, Timer
+from wpilib import Timer
 from wpimath import units
 from wpimath.geometry import Pose2d, Rotation2d, Rectangle2d
 if TYPE_CHECKING: from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from ntcore import NetworkTableInstance
-from lib import logger, utils
+from lib import logger, telemetry, utils
 from lib.classes import Alliance, RobotState, PoseSensorResult, PoseSensorResultType, Value
 if TYPE_CHECKING: from lib.sensors.pose import PoseSensor
 from core.classes import Zone
@@ -127,5 +127,5 @@ class Localization():
 
   def _updateTelemetry(self) -> None:
     self._robotPosePublisher.set(self.getRobotPose())
-    SmartDashboard.putBoolean("Robot/Localization/HasValidPoseSensorResult", self.hasValidPoseSensorResult())
-    SmartDashboard.putString("Robot/Localization/Zone", self._robotZone.name if self._robotZone is not None else "")
+    telemetry.log("Robot/Localization/HasValidPoseSensorResult", self.hasValidPoseSensorResult())
+    telemetry.log("Robot/Localization/Zone", self._robotZone.name if self._robotZone is not None else "")

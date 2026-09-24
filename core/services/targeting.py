@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Callable, Optional
 from wpimath.geometry import Pose2d, Pose3d
 from wpimath.kinematics import ChassisSpeeds
-from lib import logger, utils
+from lib import logger, telemetry, utils
 from lib.classes import Alliance
 from core.classes import Target, Zone
 import core.constants as constants

@@ -1,5 +1,5 @@
-from wpilib import DriverStation, SmartDashboard
-from lib import logger, utils
+from wpilib import DriverStation
+from lib import logger, telemetry, utils
 from lib.controllers.xbox import XboxController
 from lib.sensors.gyro_navx2 import Gyro
 from lib.sensors.pose import PoseSensor
@@ -66,14 +66,14 @@ class RobotCore:
     self.driver.back().debounce(0.5).whileTrue(self.game.resetGyro())
 
   def _initTelemetry(self) -> None:
-    SmartDashboard.putString("Game/Robot/Type", constants.Game.Robot.TYPE.name)
-    SmartDashboard.putString("Game/Robot/Name", constants.Game.Robot.NAME)
-    SmartDashboard.putNumber("Game/Field/Length", constants.Game.Field.LENGTH)
-    SmartDashboard.putNumber("Game/Field/Width", constants.Game.Field.WIDTH)
-    SmartDashboard.putNumber("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
-    SmartDashboard.putNumber("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
-    SmartDashboard.putString("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
-    SmartDashboard.putStringArray("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
+    telemetry.log("Game/Robot/Type", constants.Game.Robot.TYPE.name)
+    telemetry.log("Game/Robot/Name", constants.Game.Robot.NAME)
+    telemetry.log("Game/Field/Length", constants.Game.Field.LENGTH)
+    telemetry.log("Game/Field/Width", constants.Game.Field.WIDTH)
+    telemetry.log("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
+    telemetry.log("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
+    telemetry.log("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
+    telemetry.log("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS))
 
   def _periodic(self) -> None:
     self._updateTelemetry()
@@ -106,5 +106,5 @@ class RobotCore:
     return True
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean("Robot/Status/IsHoming", self.isHoming())
-    SmartDashboard.putBoolean("Robot/Status/IsHomed", self.isHomed())
+    telemetry.log("Robot/Status/IsHoming", self.isHoming())
+    telemetry.log("Robot/Status/IsHomed", self.isHomed())
