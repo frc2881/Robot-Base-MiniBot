@@ -13,13 +13,17 @@ from lib.classes import (
   RobotType,
   Alliance, 
   PID,
+  State,
+  SpeedMode,
+  DriveOrientation,
   MotorModel,
-  SwerveModuleGearKit,
-  SwerveModuleConstants, 
-  SwerveModuleConfig, 
-  SwerveModuleLocation, 
+  SwerveDriveModuleGearKit,
+  SwerveDriveModuleConfigConstants, 
+  SwerveDriveModuleConfig, 
+  SwerveDriveModuleLocation, 
   PoseAlignmentConstants,
   HeadingAlignmentConstants,
+  XboxControllerConfig,
   PoseSensorConfig
 )
 from core.classes import Target, Zone
@@ -35,49 +39,48 @@ class Subsystems:
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
     _drivingMotorModel = MotorModel.NEOVortex
-    _swerveModuleGearKit = SwerveModuleGearKit.High
-    
-    _swerveModuleConstants = SwerveModuleConstants(
-      wheelDiameter = units.inchesToMeters(3.0),
-      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+    _swerveDriveModuleGearKit = SwerveDriveModuleGearKit.High
+    _swerveDriveModuleConstants = SwerveDriveModuleConfigConstants(
+      drivingControllerType = SparkLowLevel.SparkModel.kSparkFlex,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
-      drivingMotorFreeSpeed = lib.constants.Motors.MOTOR_FREE_SPEEDS[_drivingMotorModel],
-      drivingMotorReduction = lib.constants.Drive.SWERVE_MODULE_GEAR_RATIOS[_swerveModuleGearKit],
-      drivingMotorCurrentLimit = 60,
-      drivingMotorPID = PID(0.04, 0, 0),
-      turningMotorCurrentLimit = 20,
-      turningMotorPID = PID(1.0, 0, 0),
-      turningMotorAbsoluteEncoderConfig = AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder()
+      drivingFreeSpeed = lib.constants.Motors.FREE_SPEEDS[_drivingMotorModel],
+      drivingGearReduction = lib.constants.Drive.Swerve.GEAR_RATIOS[_swerveDriveModuleGearKit],
+      drivingCurrentLimit = 60,
+      drivingControlPID = PID(0.04, 0, 0),
+      turningCurrentLimit = 20,
+      turningControlPID = PID(1.0, 0, 0),
+      turningEncoderConfig = AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder(),
+      wheelDiameter = units.inchesToMeters(3.0),
+      telemetryName = "Robot/Subsystems/Drive/Modules"
     )
 
-    SWERVE_MODULE_CONFIGS: tuple[SwerveModuleConfig, SwerveModuleConfig, SwerveModuleConfig, SwerveModuleConfig] = (
-      SwerveModuleConfig(SwerveModuleLocation.FrontLeft, 2, 3, -90, Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveModuleConstants),
-      SwerveModuleConfig(SwerveModuleLocation.FrontRight, 4, 5, 0, Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveModuleConstants),
-      SwerveModuleConfig(SwerveModuleLocation.RearLeft, 6, 7, 180, Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveModuleConstants),
-      SwerveModuleConfig(SwerveModuleLocation.RearRight, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveModuleConstants)
+    SWERVE_DRIVE_MODULE_CONFIGS: tuple[SwerveDriveModuleConfig, SwerveDriveModuleConfig, SwerveDriveModuleConfig, SwerveDriveModuleConfig] = (
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FrontLeft, 2, 3, -90, Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FrontRight, 4, 5, 0, Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.RearLeft, 6, 7, 180, Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.RearRight, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants)
     )
+    SWERVE_DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.chassisTranslation for c in SWERVE_DRIVE_MODULE_CONFIGS))
 
-    DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.translation for c in SWERVE_MODULE_CONFIGS))
-
-    TRANSLATION_MAX_VELOCITY: units.meters_per_second = lib.constants.Drive.SWERVE_MODULE_FREE_SPEEDS[_drivingMotorModel][_swerveModuleGearKit] * 0.5
+    TRANSLATION_MAX_VELOCITY: units.meters_per_second = lib.constants.Drive.Swerve.FREE_SPEEDS[_drivingMotorModel][_swerveDriveModuleGearKit] * 1.0
     ROTATION_MAX_VELOCITY: units.degrees_per_second = 720.0
 
     TARGET_POSE_ALIGNMENT_CONSTANTS = PoseAlignmentConstants(
-      translationPID = PID(4.0, 0, 0),
-      translationMaxVelocity = 2.4,
-      translationPositionTolerance = 0.025,
-      rotationPID = PID(4.0, 0, 0),
+      translationControlPID = PID(4.0, 0, 0),
+      translationMaxVelocity = 3.2,
+      translationPositionTolerance = 0.15,
+      rotationControlPID = PID(4.0, 0, 0),
       rotationMaxVelocity = 720.0,
-      rotationPositionTolerance = 0.5
+      rotationPositionTolerance = 5.0
     )
 
     TARGET_HEADING_ALIGNMENT_CONSTANTS = HeadingAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0), 
-      rotationPositionTolerance = 0.5
+      rotationControlPID = PID(0.01, 0, 0), 
+      rotationPositionTolerance = 1.0
     )
 
     DRIFT_CORRECTION_CONSTANTS = HeadingAlignmentConstants(
-      rotationPID = PID(0.01, 0, 0), 
+      rotationControlPID = PID(0.01, 0, 0), 
       rotationPositionTolerance = 0.5
     )
 
@@ -86,6 +89,10 @@ class Subsystems:
 
     INPUT_LIMIT_DEMO: units.percent = 0.5
     INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
+
+    SPEED_MODE = SpeedMode.Competition
+    DRIVE_ORIENTATION = DriveOrientation.Field
+    DRIFT_CORRECTION = State.Enabled
 
 class Services:
   class Localization:
@@ -109,13 +116,14 @@ class Sensors:
   class Pose:
     POSE_SENSOR_CONFIGS: tuple[PoseSensorConfig, ...] = (
       # PoseSensorConfig(
-      #   name = "Front",
+      #   cameraName = "Front", 
       #   transform = Transform3d(
-      #     Translation3d(x = units.inchesToMeters(4.25), y = units.inchesToMeters(-1.77), z = units.inchesToMeters(9.47)), 
-      #     Rotation3d(roll = units.degreesToRadians(-0.18), pitch = units.degreesToRadians(-32.77), yaw = units.degreesToRadians(-0.18))
+      #     Translation3d(x = units.inchesToMeters(-0.5), y = units.inchesToMeters(14.5), z = units.inchesToMeters(18.0)),
+      #     Rotation3d(roll = units.degreesToRadians(0), pitch = units.degreesToRadians(-5.5), yaw = units.degreesToRadians(88.0))
       #   ),
-      #   stream = "http://10.28.81.6:1182/?action=stream", 
-      #   aprilTagFieldLayout = _aprilTagFieldLayout
+      #   stream = "http://10.28.81.6:1186/?action=stream",
+      #   aprilTagFieldLayout = _aprilTagFieldLayout,
+      #   telemetryName = "Robot/Sensors/Pose"
       # ),
     )
 
@@ -123,8 +131,8 @@ class Cameras:
   DRIVER_STREAM = "http://10.28.81.6:1182/?action=stream"
 
 class Controllers:
-  DRIVER_CONTROLLER_PORT: int = 0
-  OPERATOR_CONTROLLER_PORT: int = 1
+  DRIVER_CONTROLLER_CONFIG = XboxControllerConfig(port = 0, inputDeadband = 0.1, telemetryName = "Robot/Controllers/Driver")
+  OPERATOR_CONTROLLER_CONFIG = XboxControllerConfig(port = 1, inputDeadband = 0.1, telemetryName = "Robot/Controllers/Operator")
   INPUT_DEADBAND: units.percent = 0.1
 
 class Game:

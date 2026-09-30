@@ -1,7 +1,7 @@
 import math
 from wpimath import units
-from lib.classes import RobotState, RobotMode
 from lib import logger, telemetry, utils
+from lib.classes import RobotState, RobotMode
 from core.classes import MatchState
 
 class Match():

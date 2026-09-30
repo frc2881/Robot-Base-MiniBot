@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
-from enum import Enum, auto
-from commands2 import Command, cmd
 from wpilib import SendableChooser, SmartDashboard
 from wpimath.geometry import Transform2d, Rotation2d
+from commands2 import Command, cmd
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints, GoalEndState
 from lib import logger, telemetry, utils
@@ -31,8 +30,7 @@ class Auto:
 
     self._autos = SendableChooser()
     self._autos.setDefaultOption("0: None", self.auto_NONE)
-    
-    # self._autos.addOption("10: Custom", self.auto_CUSTOM)
+    # self._autos.addOption("99: Custom", self.auto_CUSTOM)
 
     self._autos.onChange(lambda auto: self.set(auto()))
     SmartDashboard.putData("Robot/Auto", self._autos)

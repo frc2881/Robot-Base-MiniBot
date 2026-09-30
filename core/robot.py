@@ -1,4 +1,5 @@
 from wpilib import DriverStation
+from commands2 import cmd
 from lib import logger, telemetry, utils
 from lib.controllers.xbox import XboxController
 from lib.sensors.gyro_navx2 import Gyro
@@ -41,10 +42,12 @@ class RobotCore:
 
   def _initControllers(self) -> None:
     DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
-    self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_PORT, constants.Controllers.INPUT_DEADBAND)
+    self.driver = XboxController(constants.Controllers.DRIVER_CONTROLLER_CONFIG)
+    # self.operator = XboxController(constants.Controllers.OPERATOR_CONTROLLER_CONFIG)
     
   def _initTriggers(self) -> None:
     self._setupDriver()
+    # self._setupOperator()
 
   def _setupDriver(self) -> None:
     self.drive.setDefaultCommand(self.drive.drive(self.driver.getLeftY, self.driver.getLeftX, self.driver.getRightX))
@@ -65,15 +68,31 @@ class RobotCore:
     # self.driver.start().whileTrue(cmd.none())
     self.driver.back().debounce(0.5).whileTrue(self.game.resetGyro())
 
+  def _setupOperator(self) -> None:
+    # self.operator.leftStick().whileTrue(cmd.none())
+    # self.operator.rightStick().whileTrue(cmd.none())
+    # self.operator.leftTrigger().whileTrue(cmd.none())
+    # self.operator.rightTrigger().whileTrue(cmd.none())
+    # self.operator.leftBumper().whileTrue(cmd.none())
+    # self.operator.rightBumper().whileTrue(cmd.none())
+    # self.operator.a().whileTrue(cmd.none())
+    # self.operator.b().whileTrue(cmd.none())
+    # self.operator.y().whileTrue(cmd.none())
+    # self.operator.x().whileTrue(cmd.none())
+    # self.operator.povLeft().whileTrue(cmd.none())
+    # self.operator.povRight().whileTrue(cmd.none())
+    # self.operator.povUp().whileTrue(cmd.none())
+    # self.operator.povDown().whileTrue(cmd.none())
+    # self.operator.start().whileTrue(cmd.none())
+    # self.operator.back().whileTrue(cmd.none())
+    pass
+
   def _initTelemetry(self) -> None:
     telemetry.log("Game/Robot/Type", constants.Game.Robot.TYPE.name)
     telemetry.log("Game/Robot/Name", constants.Game.Robot.NAME)
     telemetry.log("Game/Field/Length", constants.Game.Field.LENGTH)
     telemetry.log("Game/Field/Width", constants.Game.Field.WIDTH)
-    telemetry.log("Robot/Drive/Length", constants.Subsystems.Drive.BUMPER_LENGTH)
-    telemetry.log("Robot/Drive/Width", constants.Subsystems.Drive.BUMPER_WIDTH)
     telemetry.log("Robot/Cameras/Driver", constants.Cameras.DRIVER_STREAM)
-    telemetry.log("Robot/Sensors/Pose/Names", list(c.name for c in constants.Sensors.Pose.POSE_SENSOR_CONFIGS), element_type = str)
 
   def _periodic(self) -> None:
     self._updateTelemetry()

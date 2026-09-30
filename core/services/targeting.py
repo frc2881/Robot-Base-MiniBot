@@ -18,6 +18,8 @@ class Targeting():
     self._getRobotZone = getRobotZone
     self._getChassisSpeeds = getChassisSpeeds
 
+    self._telemetryName = "Robot/Services/Targeting"
+
     self._alliance: Optional[Alliance] = None
     self._targets: dict[Target, Pose3d] = {}
 

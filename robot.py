@@ -10,7 +10,7 @@ class Robot(TimedCommandRobot):
   def __init__(self) -> None:
     StatusLogger.disableAutoLogging()
     TimedCommandRobot.__init__(self)
-    utils.setRobotInstance(self)
+    utils.initRobot(self)
     logger.start()
     telemetry.start()
     self._auto = cmd.none()
