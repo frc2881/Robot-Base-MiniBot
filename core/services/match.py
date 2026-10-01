@@ -1,4 +1,3 @@
-import math
 from wpimath import units
 from lib import logger, telemetry, utils
 from lib.classes import RobotState, RobotMode
@@ -35,5 +34,6 @@ class Match():
     return self._matchStateTime
 
   def _updateTelemetry(self) -> None:
+    telemetry.log("Match/Time",  utils.getMatchTime())
     telemetry.log("Match/State", self.getMatchState().name)
-    telemetry.log("Match/StateTime", math.floor(self.getMatchStateTime()))
+    telemetry.log("Match/StateTime", self.getMatchStateTime())
