@@ -25,14 +25,14 @@ class Robot(TimedCommandRobot):
       logger.exception()
 
   def disabledInit(self) -> None:
-    logger.mode(RobotMode.Disabled)
+    logger.mode(RobotMode.DISABLED)
     self._robot.disabledInit()
 
   def disabledPeriodic(self) -> None:
     pass
 
   def autonomousInit(self) -> None:
-    logger.mode(RobotMode.Auto)
+    logger.mode(RobotMode.AUTO)
     self._robot.autoInit()
     self._auto = self._robot.auto.get()
     if self._auto is not None:
@@ -45,7 +45,7 @@ class Robot(TimedCommandRobot):
     self._robot.autoExit()
 
   def teleopInit(self) -> None:
-    logger.mode(RobotMode.Teleop)
+    logger.mode(RobotMode.TELEOP)
     if self._auto is not None:
       self._auto.cancel()
     self._robot.teleopInit()
@@ -54,7 +54,7 @@ class Robot(TimedCommandRobot):
     pass
 
   def testInit(self) -> None:
-    logger.mode(RobotMode.Test)
+    logger.mode(RobotMode.TEST)
     CommandScheduler.getInstance().cancelAll()
     self._robot.testInit()
 

@@ -24,7 +24,7 @@ class Auto:
       self._robot.drive.setChassisSpeeds, 
       constants.Subsystems.Drive.PATHPLANNER_CONTROLLER,
       constants.Subsystems.Drive.PATHPLANNER_ROBOT_CONFIG,
-      lambda: utils.getAlliance() == Alliance.Red,
+      lambda: utils.getAlliance() == Alliance.RED,
       self._robot.drive
     )
 

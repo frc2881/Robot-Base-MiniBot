@@ -85,7 +85,7 @@ class Localization():
       )
       and
       (
-        utils.getRobotState() == RobotState.Disabled or 
+        utils.getRobotState() == RobotState.DISABLED or 
         poseSensorResult.resultType == PoseSensorResultType.MULTI_TAG or
         utils.getTargetDistance(poseSensorResult.estimatedPose, self._poseEstimator.getEstimatedPosition()) <= self._constants.MAX_POSE_CHANGE
       )

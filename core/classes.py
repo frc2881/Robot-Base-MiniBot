@@ -5,20 +5,20 @@ class AutoPath(Enum):
   CUSTOM = auto()
 
 class Target(Enum):
-  Default = auto()
+  DEFAULT = auto()
 
 class Zone(Enum):
-  Default = auto()
+  DEFAULT = auto()
 
 class MatchState(Enum):
-  Stopped = auto()
-  Auto = auto()
-  Teleop = auto()
-  EndGame = auto()
+  STOPPED = auto()
+  AUTO = auto()
+  TELEOP = auto()
+  END_GAME = auto()
 
 class LightsMode(Enum):
-  Default = auto()
-  RobotNotConnected = auto()
-  RobotNotHomed = auto()
-  RobotIsHoming = auto()
-  VisionNotReady = auto()
+  DEFAULT = auto()
+  ROBOT_NOT_CONNECTED = auto()
+  ROBOT_NOT_HOMED = auto()
+  ROBOT_IS_HOMING = auto()
+  VISION_NOT_READY = auto()

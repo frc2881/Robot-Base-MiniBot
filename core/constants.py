@@ -38,8 +38,8 @@ class Subsystems:
     WHEEL_BASE: units.meters = units.inchesToMeters(9.125)
     TRACK_WIDTH: units.meters = units.inchesToMeters(9.125)
     
-    _drivingMotorModel = MotorModel.NEOVortex
-    _swerveDriveModuleGearKit = SwerveDriveModuleGearKit.High
+    _drivingMotorModel = MotorModel.NEO_VORTEX
+    _swerveDriveModuleGearKit = SwerveDriveModuleGearKit.HIGH
     _swerveDriveModuleConstants = SwerveDriveModuleConfigConstants(
       drivingControllerType = SparkLowLevel.SparkModel.kSparkFlex,
       drivingMotorType = SparkLowLevel.MotorType.kBrushless,
@@ -55,10 +55,10 @@ class Subsystems:
     )
 
     SWERVE_DRIVE_MODULE_CONFIGS: tuple[SwerveDriveModuleConfig, SwerveDriveModuleConfig, SwerveDriveModuleConfig, SwerveDriveModuleConfig] = (
-      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FrontLeft, 2, 3, -90, Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
-      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FrontRight, 4, 5, 0, Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants),
-      SwerveDriveModuleConfig(SwerveDriveModuleLocation.RearLeft, 6, 7, 180, Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
-      SwerveDriveModuleConfig(SwerveDriveModuleLocation.RearRight, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants)
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FRONT_LEFT, 2, 3, -90, Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.FRONT_RIGHT, 4, 5, 0, Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.REAR_LEFT, 6, 7, 180, Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), _swerveDriveModuleConstants),
+      SwerveDriveModuleConfig(SwerveDriveModuleLocation.REAR_RIGHT, 8, 9, 90, Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), _swerveDriveModuleConstants)
     )
     SWERVE_DRIVE_KINEMATICS = SwerveDrive4Kinematics(*(c.chassisTranslation for c in SWERVE_DRIVE_MODULE_CONFIGS))
 
@@ -90,9 +90,9 @@ class Subsystems:
     INPUT_LIMIT_DEMO: units.percent = 0.5
     INPUT_RATE_LIMIT_DEMO: units.percent = 0.5
 
-    SPEED_MODE = SpeedMode.Competition
-    DRIVE_ORIENTATION = DriveOrientation.Field
-    DRIFT_CORRECTION = State.Enabled
+    SPEED_MODE = SpeedMode.COMPETITION
+    DRIVE_ORIENTATION = DriveOrientation.FIELD
+    DRIFT_CORRECTION = State.ENABLED
 
 class Services:
   class Localization:
@@ -137,7 +137,7 @@ class Controllers:
 
 class Game:
   class Robot:
-    TYPE = RobotType.Practice
+    TYPE = RobotType.PRACTICE
     NAME: str = "MiniBot (Black)"
 
   class Commands:
@@ -149,21 +149,21 @@ class Game:
     BOUNDS = Rectangle2d(Translation2d(0, 0), Translation2d(LENGTH, WIDTH))
 
     TARGETS: dict[Alliance, dict[Target, Pose3d]] = {
-      Alliance.Blue: {
-        Target.Default: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0)))
+      Alliance.BLUE: {
+        Target.DEFAULT: Pose3d(4.625, 4.030, 1.263, Rotation3d(Rotation2d.fromDegrees(0)))
       },
-      Alliance.Red: {}
+      Alliance.RED: {}
     }
-    for target in TARGETS[Alliance.Blue]:
-      pose = FlippingUtil.flipFieldPose(TARGETS[Alliance.Blue][target].toPose2d())
-      TARGETS[Alliance.Red][target] = Pose3d(pose.X(), pose.Y(), TARGETS[Alliance.Blue][target].Z(), Rotation3d(pose.rotation()))
+    for target in TARGETS[Alliance.BLUE]:
+      pose = FlippingUtil.flipFieldPose(TARGETS[Alliance.BLUE][target].toPose2d())
+      TARGETS[Alliance.RED][target] = Pose3d(pose.X(), pose.Y(), TARGETS[Alliance.BLUE][target].Z(), Rotation3d(pose.rotation()))
 
     ZONES: dict[Alliance, dict[Zone, Rectangle2d]] = {
-      Alliance.Blue: {
-        Zone.Default: Rectangle2d(Translation2d(0, 0), Translation2d(4.400, 4.022))
+      Alliance.BLUE: {
+        Zone.DEFAULT: Rectangle2d(Translation2d(0, 0), Translation2d(4.400, 4.022))
       },
-      Alliance.Red: {}
+      Alliance.RED: {}
     }
-    for zone in ZONES[Alliance.Blue]:
-      rectangle = ZONES[Alliance.Blue][zone]
-      ZONES[Alliance.Red][zone] = Rectangle2d(FlippingUtil.flipFieldPose(rectangle.center()), rectangle.xwidth, rectangle.ywidth)
+    for zone in ZONES[Alliance.BLUE]:
+      rectangle = ZONES[Alliance.BLUE][zone]
+      ZONES[Alliance.RED][zone] = Rectangle2d(FlippingUtil.flipFieldPose(rectangle.center()), rectangle.xwidth, rectangle.ywidth)

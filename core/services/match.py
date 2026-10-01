@@ -5,7 +5,7 @@ from core.classes import MatchState
 
 class Match():
   def __init__(self) -> None:
-    self._matchState = MatchState.Stopped
+    self._matchState = MatchState.STOPPED
     self._matchStateTime: units.seconds = 0
 
     utils.addRobotPeriodic(self._periodic)
@@ -15,16 +15,16 @@ class Match():
     self._updateTelemetry()
 
   def _updateMatch(self) -> None:
-    if utils.getRobotState() == RobotState.Enabled:
+    if utils.getRobotState() == RobotState.ENABLED:
       matchTime = utils.getMatchTime()
-      if utils.getRobotMode() == RobotMode.Auto:
-        self._matchState = MatchState.Auto
+      if utils.getRobotMode() == RobotMode.AUTO:
+        self._matchState = MatchState.AUTO
         self._matchStateTime = matchTime
-      if utils.getRobotMode() == RobotMode.Teleop:
-        self._matchState = MatchState.EndGame if utils.isValueWithinRange(matchTime, 0, 31) else MatchState.Teleop
+      if utils.getRobotMode() == RobotMode.TELEOP:
+        self._matchState = MatchState.END_GAME if utils.isValueWithinRange(matchTime, 0, 31) else MatchState.TELEOP
         self._matchStateTime = matchTime
     else:
-      self._matchState = MatchState.Stopped
+      self._matchState = MatchState.STOPPED
       self._matchStateTime = 0
 
   def getMatchState(self) -> MatchState:
