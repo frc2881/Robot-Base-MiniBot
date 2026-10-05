@@ -9,7 +9,7 @@ from commands2 import Subsystem, Command, cmd
 from pathplannerlib.util import DriveFeedforwards
 from lib import logger, telemetry, utils
 from lib.classes import State, Position, IdleMode, SpeedMode, DriveOrientation, SwerveDriveModuleLocation
-from lib.components.swerve_drive_module import SwerveDriveModule
+from lib.modules.swerve_drive import SwerveDriveModule
 import core.constants as constants
 
 class Drive(Subsystem):
