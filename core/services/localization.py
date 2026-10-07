@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Optional
-from wpilib import Timer
 from wpimath import units
+from wpimath.filter import Debouncer
 from wpimath.geometry import Pose2d, Rotation2d, Rectangle2d
 if TYPE_CHECKING: from wpimath.kinematics import SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
@@ -32,7 +32,7 @@ class Localization():
     )
     
     self._hasValidPoseSensorResult: bool = False
-    self._validPoseSensorResultTimer = Timer()
+    self._validPoseSensorResultDebouncer = Debouncer(self._constants.VALID_POSE_SENSOR_RESULT_TIMEOUT, Debouncer.DebounceType.kFalling)
     
     self._alliance: Optional[Alliance] = None
     self._zones: dict[Zone, Rectangle2d] = {}
@@ -61,12 +61,7 @@ class Localization():
             self._getStandardDeviations(poseSensorResult)
           )
           hasValidPoseSensorResult = True
-    if hasValidPoseSensorResult:
-      self._hasValidPoseSensorResult = True
-      self._validPoseSensorResultTimer.restart()
-    else:
-      if self._hasValidPoseSensorResult and self._validPoseSensorResultTimer.hasElapsed(self._constants.VALID_POSE_SENSOR_RESULT_TIMEOUT):
-        self._hasValidPoseSensorResult = False
+    self._hasValidPoseSensorResult = self._validPoseSensorResultDebouncer.calculate(hasValidPoseSensorResult)
 
   def _isResultValid(self, poseSensorResult: PoseSensorResult) -> bool:
     return (         
